@@ -1,12 +1,11 @@
 "use client";
 
-import { useEffect, useRef, useState, type ChangeEvent } from 'react';
+import {  useState, type ChangeEvent } from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
 import UpArrowIcon from '../Icons/UpArrowIcon';
 import LoadingIcon from '../Icons/LoadingIcon';
 import Preview from '../Preview/Preview';
-import type { Messages } from '../../lib/types/messages';
 import { useHandleMessage } from "@/app/lib/store/handleMessages";
 
 
@@ -53,13 +52,18 @@ const Conversation:React.FC = ()=>{
                         </div>
                     </div>
                 ))}
+                <div>
+                    {Array.from({ length: 6 }).map((_, i) => (
+                        <br key={i} />
+                    ))}
+                </div>
             </div>
             <div className="fixed bottom-5 left-1/2 transform -translate-x-1/2
                             w-[666px] 
                             rounded-lg px-2 py-2
                             bg-input-box
                             flex flex-col gap-3 m-3.5
-                            border border-1 border-gray-200">
+                            border border-gray-200">
                 <TextareaAutosize className="bg-transparent w-full text-sm overflow-y-auto
                                 focus:outline-none focus:border-none
                                 resize-none" 
@@ -78,7 +82,7 @@ const Conversation:React.FC = ()=>{
                                         rounded-md
                                         py-1 px-[5px]`}
                             onClick={handleSendMessage}>
-                        {isLoading?<LoadingIcon />:<UpArrowIcon width={12} height={12}/>}
+                        {isLoading?<LoadingIcon width={12} height={12}/>:<UpArrowIcon width={12} height={12}/>}
                     </button>
                 </div>
             </div>

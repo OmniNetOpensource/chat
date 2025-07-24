@@ -1,4 +1,3 @@
-import { stat } from 'fs';
 import {create} from 'zustand'
 
 
@@ -53,7 +52,6 @@ export const useHandleMessage =create<MessageState> ( (set,get) =>({
             const reader = response.body?.getReader();
             const decoder = new TextDecoder();
             let aiResponse = '';
-            let buffer = '';
 
             set((state)=>({
                 messages:[
@@ -72,7 +70,7 @@ export const useHandleMessage =create<MessageState> ( (set,get) =>({
                     if(answer[0]==='f'){
                         answer=answer.slice(47,-1);
                     }
-                    let lines = answer.slice(3,-2).split('\\n');
+                    const lines = answer.slice(3,-2).split('\\n');
                     for(let i=0; i<lines.length;i++){
                         aiResponse +=lines[i];
                         if(i!==lines.length-1){

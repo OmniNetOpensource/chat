@@ -35,13 +35,102 @@
 
 /* 确保列表显示正确的样式 */
 .preview-content ul {
-    list-style-type: disc !important;
-    padding-left: 2em !important;
+    list-style-type: none !important;
+    padding-left: 0 !important;
+    margin: 0.1em 0 !important;
 }
 
 .preview-content ol {
-    list-style-type: decimal !important;
-    padding-left: 2em !important;
+    list-style-type: none !important;
+    padding-left: 0 !important;
+    margin: 0.1em 0 !important;
+    counter-reset: list-counter !important;
+}
+
+.preview-content li {
+    position: relative !important;
+    padding: 0.3em 0 0.3em 2em !important;
+    margin: 0.1em 0 !important;
+    line-height: 1.6 !important;
+    border-radius: 6px !important;
+    transition: all 0.2s ease !important;
+    background-color: transparent !important;
+}
+
+
+/* 无序列表的自定义项目符号 */
+.preview-content ul > li::before {
+    content: "•" !important;
+    position: absolute !important;
+    left: 0.8em !important;
+    top: 0.5em !important;
+    color: var(--color-primary) !important;
+    font-weight: bold !important;
+    font-size: 1.2em !important;
+    line-height: 1 !important;
+}
+
+/* 有序列表的自定义数字 */
+.preview-content ol > li {
+    counter-increment: list-counter !important;
+}
+
+.preview-content ol > li::before {
+    content: counter(list-counter) "." !important;
+    position: absolute !important;
+    left: 0.3em !important;
+    top: 0.4em !important;
+    color: var(--color-primary) !important;
+    font-weight: 600 !important;
+    font-size: 0.9em !important;
+    line-height: 1.6 !important;
+    min-width: 1.5em !important;
+    text-align: right !important;
+}
+
+/* 嵌套列表样式 */
+.preview-content ul ul,
+.preview-content ol ol,
+.preview-content ul ol,
+.preview-content ol ul {
+    margin: 0.1em 0 !important;
+    padding-left: 0.5em !important;
+}
+
+.preview-content ul ul > li::before {
+    content: "◦" !important;
+    font-size: 1em !important;
+}
+
+.preview-content ul ul ul > li::before {
+    content: "▪" !important;
+    font-size: 0.8em !important;
+}
+
+/* 列表项内的段落和其他元素 */
+.preview-content li > p {
+    margin: 0 !important;
+    display: inline !important;
+}
+
+.preview-content li > p:not(:last-child) {
+    margin-bottom: 0.5em !important;
+    display: block !important;
+}
+
+/* 列表项内的代码块 */
+.preview-content li > code {
+    background-color: var(--color-code-background) !important;
+    padding: 0.1em 0.3em !important;
+    border-radius: 3px !important;
+    font-size: 0.9em !important;
+}
+
+/* 紧凑列表样式（连续的列表项） */
+.preview-content ul.compact > li,
+.preview-content ol.compact > li {
+    margin: 0.1em 0 !important;
+    padding: 0.1em 0 0.1em 1em !important;
 }
 
 /* 确保标题样式正确 */
