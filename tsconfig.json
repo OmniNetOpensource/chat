@@ -1,0 +1,47 @@
+{
+  "compilerOptions": {
+    // 基础环境配置
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ], // 告诉TS，我们的代码会运行在浏览器环境(dom, dom.iterable)并使用最新的JS特性(esnext)。
+    "allowJs": true, // 允许在TS项目中导入.js文件，方便使用一些老的JS库。
+    "skipLibCheck": true, // 跳过对所有依赖库声明文件(.d.ts)的类型检查。能极大提升编译速度。
+    "strict": true, // 开启所有严格模式检查。这是代码质量的保证，大厂面试的加分项。
+    // 模块和编译输出配置
+    "module": "esnext", // 使用最新的ES模块标准。
+    "moduleResolution": "bundler", // 最新的模块解析策略，它能更好地模仿现代打包工具(如Webpack, SWC)的行为。
+    "resolveJsonModule": true, // 允许直接 import json 文件。
+    "isolatedModules": true, // 要求每个文件都必须是独立的模块。这是SWC这类快速编译工具的要求。
+    "noEmit": true, // **极其重要**：告诉TS不要生成任何JS文件。TS只负责“检查”，不负责“编译输出”。输出工作完全交给Next.js。
+    // JSX 相关配置
+    "jsx": "preserve", // **核心中的核心**：如上所述，保持JSX语法不变，交给Next.js处理。
+    // Next.js 特定配置
+    "incremental": true, // 开启增量编译，第二次启动开发服务器会更快。
+    "plugins": [
+      {
+        "name": "next"
+      }
+    ], // 启用Next.js的TS插件，它能让VSCode更好地理解Next.js的特殊文件（如 layout.tsx）和API。
+    // 推荐的辅助配置
+    "esModuleInterop": true, // 解决一些commonjs和ES模块混用时的兼容问题。
+    "paths": {
+      "@/*": [
+        "./*"
+      ] // 路径别名。让你能用 `@/components/Button` 代替 `../../components/Button` 这种丑陋的相对路径。
+    },
+    "target": "ES2017"
+  },
+  // 告诉TS哪些文件需要被检查
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts"
+  ],
+  // 告诉TS哪些文件不需要被检查
+  "exclude": [
+    "node_modules"
+  ]
+}

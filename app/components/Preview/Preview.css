@@ -1,0 +1,200 @@
+/* 增强选择器特异性，使用更具体的选择器和!important */
+
+
+
+.preview-content h1,
+.preview-content h2,
+.preview-content h3,
+.preview-content h4,
+.preview-content h5,
+.preview-content h6,
+.preview-content p,
+.preview-content ul,
+.preview-content ol,
+.preview-content li,
+.preview-content table,
+.preview-content th,
+.preview-content td {
+    all: revert ;
+}
+
+/* 单独处理blockquote，确保它的样式不被重置 */
+.preview-content blockquote:not(.code-wrapper blockquote) {
+    all: revert !important;
+    background-color: var(--color-blockquote-background) !important;
+    border-left: 2px solid rgba(0, 0, 0, 0.202) !important;
+    color: var(--color-text-primary) !important;
+    padding: 5px !important;
+    margin: 1em 0 !important;
+}
+
+
+
+/* 确保列表显示正确的样式 */
+.preview-content ul {
+    list-style-type: disc !important;
+    padding-left: 2em !important;
+}
+
+.preview-content ol {
+    list-style-type: decimal !important;
+    padding-left: 2em !important;
+}
+
+/* 确保标题样式正确 */
+.preview-content h1 {
+    font-size: 2em !important;
+    font-weight: bold !important;
+    margin-top: 0.67em !important;
+    margin-bottom: 0.67em !important;
+}
+
+.preview-content h2 {
+    font-size: 1.5em !important;
+    font-weight: bold !important;
+    margin-top: 0.83em !important;
+    margin-bottom: 0.83em !important;
+}
+
+.preview-content h3 {
+    font-size: 1.17em !important;
+    font-weight: bold !important;
+    margin-top: 1em !important;
+    margin-bottom: 1em !important;
+}
+
+.preview-content table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+    margin: 1em 0 !important;
+    background-color: var(--color-input-box) !important;
+    border-radius: 8px !important;
+    overflow: hidden !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+}
+
+.preview-content th {
+    background-color: var(--color-primary) !important;
+    color: white !important;
+    padding: 12px 16px !important;
+    text-align: left !important;
+    font-weight: 600 !important;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+.preview-content td {
+    padding: 12px 16px !important;
+    border-bottom: 1px solid #e5e5e5 !important;
+    vertical-align: top !important;
+}
+
+.preview-content tr:nth-child(even) td {
+    background-color: var(--color-secondary) !important;
+}
+
+.preview-content tr:hover td {
+    background-color: rgba(201, 100, 66, 0.1) !important;
+}
+
+
+.show-area {
+  color: var(--color-text-primary);
+  height: 100%;
+  width: 100%;
+  padding: var(--spacing-4);
+  background-color: var(--color-background);
+  overflow-wrap: break-word;
+  overflow-y: auto;
+  margin: 0;
+  padding-top:0;
+}
+
+.show-area :not(pre) > code {
+  background-color: var(--color-code-background); /* 使用变量或备用颜色 */
+  color: var(--color-text-primary);
+  padding: 0.2em 0.4em;
+  margin: 0 0.2em;
+  font-size: 85%;
+  border-radius: 6px;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+}
+
+.code-wrapper{
+  display: flex !important;
+  flex-direction: column !important;
+  box-shadow:
+    0 4px 24px 0 rgba(0, 0, 0, 0.1),
+    0 1.5px 6px 0 rgba(0, 0, 0, 0.06) !important;
+  border-radius: 8px !important;
+  margin: 1em 0 !important;
+}
+
+.code-wrapper pre code {
+  border-radius: 0 0 8px 8px !important;
+  border: none !important;
+  margin: 0 !important;
+  padding: 1em !important;
+  overflow-x: auto !important;
+  display: block !important;
+  background: var(--color-code-background) !important;
+  font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;
+}
+
+.code-wrapper pre {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+
+.code-toolbar{
+  border-radius: 8px 8px 0 0 !important;
+  margin: 0 !important;
+  color: var(--color-toolbar-text) !important;
+  font-size: 0.8rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  background: var(--color-code-background) !important;
+  padding: 0.5rem !important;
+}
+
+
+.copy-button{
+  color:inherit;
+  font-size: inherit;
+  margin: 0 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+.lang-name{
+  background: transparent;
+  border: none;
+  user-select: none;
+  margin: 0 0.5rem;
+}
+
+/* LaTeX支持 */
+.preview-content .katex-display {
+  display: block !important;
+  margin: 1em 0 !important;
+  text-align: center !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+}
+
+.preview-content .katex {
+  font-size: 1.1em !important;
+  font-family: KaTeX_Main, 'Times New Roman', serif !important;
+  line-height: 1.2 !important;
+  white-space: normal !important;
+  text-indent: 0 !important;
+}
+
+/* 确保blockquote内的内容样式正确 */
+blockquote p {
+  display: inline !important;
+  font-style: italic !important;
+  margin: 0 !important;
+}
