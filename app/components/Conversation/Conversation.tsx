@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ChangeEvent, useEffect, useRef } from 'react';
+import { useState, type ChangeEvent, useRef } from 'react';
 
 import UpArrowIcon from '../Icons/UpArrowIcon';
 import LoadingIcon from '../Icons/LoadingIcon';

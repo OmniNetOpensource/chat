@@ -58,4 +58,6 @@ const Preview =forwardRef<HTMLDivElement, PreviewProps>(({rawContent},parentRef)
     );
 });
 
+Preview.displayName = 'Preview';
+
 export default Preview;

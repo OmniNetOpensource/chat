@@ -2,15 +2,11 @@ import { useEffect, useState } from "react";
 import MoonIcon from "../Icons/MoonIcon";
 import SunIcon from "../Icons/SunIcon";
 import { useTheme } from "next-themes";
-import ExpandSidebarIcon from "../Icons/ExpandSidebarIcon";
-import CollapseSidebarIcon from "../Icons/CollapseSidebarIcon";
-import { useSidebarState } from "@/app/lib/store/useSidebarState";
 
 const Header = ()=>{
 
     const {theme,setTheme} = useTheme();
     const [mounted,setMounted] = useState<boolean>(false);
-    const {isSidebarOpen,setSidebar} = useSidebarState();
 
     useEffect(()=>{
         setMounted(true);

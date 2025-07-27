@@ -1,69 +1,95 @@
-# React + TypeScript + Vite
+# AI 聊天应用
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+这是一个基于 Next.js、React、TypeScript 和 Tailwind CSS 构建的现代化 AI 聊天应用。该应用允许用户与 AI 进行自然语言对话，并具有代码高亮显示、数学公式渲染等高级功能。
 
-Currently, two official plugins are available:
+![应用截图](public/chat.png)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 功能特点
 
-## Expanding the ESLint configuration
+- 💬 实时 AI 对话
+- 🌓 明暗主题切换
+- 📱 响应式设计，支持移动端和桌面端
+- ✨ 支持 Markdown 和代码高亮显示
+- 🧮 支持通过 KaTeX 渲染数学公式
+- 📋 消息复制功能
+- 🔄 重新发送消息功能
+- 📚 对话历史管理
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 技术栈
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **前端框架**: Next.js 15 + React 19
+- **语言**: TypeScript
+- **样式**: Tailwind CSS
+- **状态管理**: Zustand
+- **AI 集成**: OpenAI API
+- **包管理器**: pnpm
+- **渲染**: marked + highlight.js + KaTeX
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+## 快速开始
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### 前提条件
+
+- Node.js (推荐 v18+)
+- pnpm
+
+### 安装
+
+```bash
+# 克隆仓库
+git clone https://github.com/yourusername/chat.git
+cd chat
+
+# 安装依赖
+pnpm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### 配置
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+创建一个 `.env.local` 文件，添加你的 OpenAI API 密钥：
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
 ```
+OPENAI_API_KEY=your_api_key_here
+```
+
+### 开发
+
+```bash
+pnpm dev
+```
+
+应用将在 http://localhost:3000 上运行。
+
+### 构建生产版本
+
+```bash
+pnpm build
+pnpm start
+```
+
+## 项目结构
+
+```
+chat/
+  ├── app/                  # Next.js 应用代码
+  │   ├── api/              # API 路由
+  │   ├── components/       # React 组件
+  │   ├── lib/              # 工具库、hooks 和服务
+  │   └── ...
+  ├── public/               # 静态资源
+  └── ...
+```
+
+## 主要组件
+
+- **Conversation**: 处理用户与 AI 之间的对话
+- **Preview**: 渲染 Markdown、代码和数学公式
+- **ThemeProvider**: 提供明暗主题切换功能
+- **Sidebar**: 管理对话历史
+
+## 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 许可证
+
+MIT

@@ -36,7 +36,7 @@ export const useMessageStore =create<MessageState> ( (set,get) =>({
         if(abortController){
             try {
                 abortController.abort();
-            } catch (error) {
+            } catch {
                 console.log('Request cancelled successfully');
             }
         }
@@ -87,7 +87,7 @@ export const useMessageStore =create<MessageState> ( (set,get) =>({
                 const { done, value } = await reader!.read();
                 if (done) break;
 
-                let chunk = decoder.decode(value, { stream: true });
+                const chunk = decoder.decode(value, { stream: true });
                 console.log('收到chunk:', chunk);
                 
                 const lines = chunk.split('\n');
