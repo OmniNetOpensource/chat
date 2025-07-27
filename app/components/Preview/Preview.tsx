@@ -52,7 +52,7 @@ const Preview =forwardRef<HTMLDivElement, PreviewProps>(({rawContent},parentRef)
 
 
     return (
-        <div ref={localRef} className="h-full w-full p-4 bg-secondary text-text-primary overflow-y-auto">
+        <div ref={localRef} className="h-full w-full p-4 text-text-primary overflow-y-auto rounded-inherit">
             <div className="preview-content show-area" dangerouslySetInnerHTML={{__html:renderHtml}} />
         </div>
     );

@@ -6,24 +6,37 @@ html,body,#root{
   width: 100%;
 }
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 
 html{
-  --color-sidebar:#fefbf3;
-  --color-text-primary:#141413;
+  --color-sidebar:#F5F4ED;
+  --color-text-primary:#1a1814;
   --color-input-box:#ffffff;
-  --color-primary:#d97706;
-  --color-secondary:#fef3e2;
-  --color-code-background: #fef7ed;
+  --color-primary:#e67e22;
+  --color-primary-rgb: 230, 126, 34;
+  --color-secondary:#fdf2e9;
+  --color-code-background: #faf0e6;
   --color-toolbar: #78716c;
+  --color-hoverbg: #e8e8e8; /* 修改为淡灰色 */
+  --color-blockquote-background: #fff8f0;
+  --color-user-message-background: #f0eee6;
+  --color-chat-background: #faf9f5;
 }
+
 html.dark {
-  --color-sidebar: #1c1917;
-  --color-text-primary: #e5e5e5;
-  --color-input-box: #292524;
-  --color-primary: #fb923c;
-  --color-secondary: #44403c;
-  --color-code-background: #1c1917;
+  --color-sidebar: #1f1e1d;
+  --color-text-primary: #f0e9e2;
+  --color-input-box: #272320;
+  --color-primary: #f39c12;
+  --color-primary-rgb: 243, 156, 18;
+  --color-secondary: #3a332e;
+  --color-code-background: #211d1a;
   --color-toolbar: #a8a29e;
+  --color-hoverbg: #141413; /* 修改为深灰色 */
+  --color-blockquote-background: #2d2520;
+  --color-user-message-background: #141413;
+  --color-chat-background: #262624;
 }
 
 
@@ -36,4 +49,8 @@ html.dark {
   --color-secondary:--color-secondary;
   --color-code-background: --color-code-background;
   --color-toolbar: --color-toolbar;
+  --color-hoverbg: --color-hoverbg;
+  --color-blockquote-background: --color-blockquote-background;
+  --color-user-message-background: --color-user-message-background;
+  --color-chat-background: --color-chat-background;
 }
