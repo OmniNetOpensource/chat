@@ -10,10 +10,8 @@ import SidebarLogo from "./SidebarLogo";
 import SidebarButton from "./SidebarButton";
 import SidebarContainer from "./SidebarContainer";
 import SidebarOverlay from "./SidebarOverlay";
-import { useSession } from "next-auth/react";
-import DefaultAvatar from "../Icons/DefaultAvatar";
-import { useState } from "react";
-import UserModal from "../UserModal/UserModal";
+
+
 import MessageList from "./MessageList";
 import { useChatStore } from "@/app/lib/store/useChatStore";
 
@@ -22,7 +20,6 @@ const Sidebar: React.FC = () => {
     const { isSidebarOpen, setSidebar } = useSidebarState();
     const { isMobile } = useResponsive();
     const router = useRouter();
-    const [isUserModalOpen, setIsUserModalOpen] = useState(false);
     const {clear} = useChatStore();
     
     const handleSearchClick = () => {
@@ -38,12 +35,6 @@ const Sidebar: React.FC = () => {
             // Future implementation
         }
         router.push('/');
-    }
-
-    const {data:session} = useSession();
-
-    const handleUserClick = () => {
-        setIsUserModalOpen(true);
     }
 
     return (  
@@ -76,23 +67,7 @@ const Sidebar: React.FC = () => {
 
                 
                 {isSidebarOpen&&<MessageList/>}
-
-{/*                 <SidebarButton 
-                    onClick={handleUserClick}
-                    icon={session?.user?.image 
-                        ? <img src={session.user.image} alt="User" className="w-8 h-8 rounded-full" />
-                        : <DefaultAvatar 
-                            width={32} 
-                            height={32} 
-                            initials={session?.user?.name?.substring(0, 2) || "U"} 
-                          />
-                    }
-                    text={session?.user?.name||'User'}
-                    textClassName="text-text-primary"
-                    className="mt-auto mb-2"
-                /> */}
             </SidebarContainer>
-    {/*         {isUserModalOpen&&<UserModal onClick={()=>setIsUserModalOpen(false)}/>} */}
         </>
     );
 }
