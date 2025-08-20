@@ -10,33 +10,33 @@ html,body,#root{
 
 
 html{
-  --color-sidebar:#F5F4ED;
-  --color-text-primary:#1a1814;
+  --color-sidebar:#ffffff;
+  --color-text-primary:#000000;
   --color-input-box:#ffffff;
-  --color-primary:#e67e22;
-  --color-primary-rgb: 230, 126, 34;
-  --color-secondary:#fdf2e9;
-  --color-code-background: #faf0e6;
-  --color-toolbar: #78716c;
-  --color-hoverbg: #e8e8e8; /* 修改为淡灰色 */
-  --color-blockquote-background: #fff8f0;
-  --color-user-message-background: #f0eee6;
-  --color-chat-background: #faf9f5;
+  --color-primary:#000000;
+  --color-primary-rgb: 0, 0, 0;
+  --color-secondary:#f0f0f0;
+  --color-code-background: #f5f5f5;
+  --color-toolbar: #767676;
+  --color-hoverbg: #e5e5e5;
+  --color-blockquote-background: #f5f5f5;
+  --color-user-message-background: #f0f0f0;
+  --color-chat-background: #ffffff;
 }
 
 html.dark {
-  --color-sidebar: #1f1e1d;
-  --color-text-primary: #f0e9e2;
-  --color-input-box: #272320;
-  --color-primary: #f39c12;
-  --color-primary-rgb: 243, 156, 18;
-  --color-secondary: #3a332e;
-  --color-code-background: #211d1a;
-  --color-toolbar: #a8a29e;
-  --color-hoverbg: #141413; /* 修改为深灰色 */
-  --color-blockquote-background: #2d2520;
-  --color-user-message-background: #141413;
-  --color-chat-background: #262624;
+  --color-sidebar: #000000;
+  --color-text-primary: #ffffff;
+  --color-input-box: #1a1a1a;
+  --color-primary: #ffffff;
+  --color-primary-rgb: 255, 255, 255;
+  --color-secondary: #1a1a1a;
+  --color-code-background: #121212;
+  --color-toolbar: #a0a0a0;
+  --color-hoverbg: #2a2a2a;
+  --color-blockquote-background: #1a1a1a;
+  --color-user-message-background: #1a1a1a;
+  --color-chat-background: #000000;
 }
 
 
@@ -53,4 +53,14 @@ html.dark {
   --color-blockquote-background: --color-blockquote-background;
   --color-user-message-background: --color-user-message-background;
   --color-chat-background: --color-chat-background;
+  --animate-slideLight:slideLight 3s infinite;
+  @keyframes slideLight {
+    0% {
+        left: -100%;
+    }
+    100% {
+        left: 100%; 
+    }
+  }
 }
+

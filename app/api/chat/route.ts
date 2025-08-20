@@ -1,44 +1,31 @@
-import { streamText } from 'ai';
-import { createOpenAI } from '@ai-sdk/openai';
+import { NextRequest } from "next/server";
 
-export const runtime = 'edge';
 
-const myOpenAI = createOpenAI({
-  apiKey: process.env.API_KEY!,
-  baseURL: 'https://openai-proxy-service-491339614967.us-central1.run.app/v1',
-});
+export async function POST(req:NextRequest){
 
-export async function POST(req: Request) {
-  const { messages } = await req.json();
-  const signal = req.signal;
-  
   try {
-    const result = await streamText({
-      model: myOpenAI('google/gemini-2.5-pro'),
-      messages,
+    const body = await req.json();
+
+
+    const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+
+        Authorization: `Bearer ${process.env.API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
     });
     
-    const { readable, writable } = new TransformStream();
-    const dataStream = result.toDataStreamResponse({
-      experimental_sendFinish: false,
-      experimental_sendStart: false,
-      sendSources: false,
-      sendUsage: false,
+    return new Response(response.body, {
+      status: response.status,
+      headers: {
+        'Content-Type': 'text/event-stream; charset=utf-8',
+      }
     });
-    
-    if (signal) {
-      signal.addEventListener('abort', () => {
-        writable.abort(new Error('客户端取消了请求'));
-      });
-    }
-    
-    dataStream.body?.pipeTo(writable).catch(() => {});
-    
-    return new Response(readable);
-  } catch (error) {
-    if ((error as Error).name === 'AbortError') {
-      return new Response('请求已取消', { status: 499 });
-    }
-    return new Response('处理请求时出错', { status: 500 });
+
+  } catch (e) {
+    console.error(e);
+    return new Response('Error', { status: 500 });
   }
 }

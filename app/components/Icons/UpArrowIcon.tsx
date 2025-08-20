@@ -16,7 +16,7 @@ const UpArrowIcon = ({ width = 24, height = 24 }: Props) => {
     >
       <path
         d="M12 19V5M5 12l7-7 7 7"
-        stroke="white"
+        stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"

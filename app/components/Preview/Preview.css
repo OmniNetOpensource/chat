@@ -2,6 +2,13 @@
 
 
 
+.preview-content {
+    width: 100% !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+    word-wrap: break-word !important;
+}
+
 .preview-content h1,
 .preview-content h2,
 .preview-content h3,
@@ -16,6 +23,8 @@
 .preview-content th,
 .preview-content td {
     all: revert ;
+    max-width: 100% !important;
+    overflow-wrap: break-word !important;
 }
 
 /* 单独处理blockquote，确保它的样式不被重置 */
@@ -164,6 +173,8 @@
     border-radius: 8px !important;
     overflow: hidden !important;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+    table-layout: fixed !important;
+    word-break: break-word !important;
 }
 
 .preview-content th {
@@ -185,21 +196,17 @@
     background-color: var(--color-secondary) !important;
 }
 
-.preview-content tr:hover td {
-    background-color: rgba(230, 126, 34, 0.1) !important;
-}
 
 
 .show-area {
   color: var(--color-text-primary);
   height: 100%;
   width: 100%;
-  padding: var(--spacing-4);
-  /* background-color: var(--color-background); */
   overflow-wrap: break-word;
   overflow-y: auto;
+  overflow-x: hidden;
   margin: 0;
-  padding-top:0;
+  padding:0;
 }
 
 .show-area :not(pre) > code {
@@ -220,6 +227,9 @@
     0 1.5px 6px 0 rgba(0, 0, 0, 0.04) !important;
   border-radius: 8px !important;
   margin: 1em 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
 }
 
 .code-wrapper pre code {
@@ -227,7 +237,10 @@
   border: none !important;
   margin: 0 !important;
   padding: 1em !important;
-  overflow-x: auto !important;
+  overflow-x: hidden !important;
+  white-space: pre-wrap !important;
+  word-wrap: break-word !important;
+  word-break: break-all !important;
   display: block !important;
   background: var(--color-code-background) !important;
   font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace !important;
@@ -236,6 +249,9 @@
 .code-wrapper pre {
   margin: 0 !important;
   padding: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow-x: hidden !important;
 }
 
 
