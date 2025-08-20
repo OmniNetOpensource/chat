@@ -1,6 +1,6 @@
 import ChatRoom from "./chatRoom";
 
-export default function ChatPage({params}: {params: {id: string}}){
+export default function ChatPage(){
     return (
         <ChatRoom />
     )

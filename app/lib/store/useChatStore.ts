@@ -7,35 +7,35 @@ interface TextContent {
     text: string,
 }
 
-interface ImageContent {
-    type: 'image',
-    image_url: {
-        url: string,
-    }
-}
+// interface ImageContent {
+//     type: 'image',
+//     image_url: {
+//         url: string,
+//     }
+// }
 
-interface FileContent {
-    type: 'file',
-    file: {
-        filename: string,
-        file_data: string,
-    }
-}
+// interface FileContent {
+//     type: 'file',
+//     file: {
+//         filename: string,
+//         file_data: string,
+//     }
+// }
 
-interface AudioContent {
-    type: "input_audio",
-    input_audio: {
-        data: string,
-        format: "wav" | 'mp3',
-    },
-}
+// interface AudioContent {
+//     type: "input_audio",
+//     input_audio: {
+//         data: string,
+//         format: "wav" | 'mp3',
+//     },
+// }
 
 interface ThinkingContent {
     type: "thinking",
     text: string,
 }
 
-export type MessageContent = TextContent | ImageContent | FileContent | AudioContent | ThinkingContent;
+export type MessageContent = TextContent | ThinkingContent;
 
 interface Message {
     role: 'user' | 'system' | 'assistant',
@@ -95,8 +95,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
             const decoder = new TextDecoder();
 
             let buffer = '';
-            let responseContent = '';
-            let thinkingContent = '';
 
             while (true) {
                 const { done, value } = await reader.read();
@@ -118,11 +116,8 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
                         try {
                             const parsed = JSON.parse(data);
 
-                            thinkingContent+= (parsed.choices[0].delta.reasoning) || '';
-                            responseContent += (parsed.choices[0].delta.content) || '';
-
-                            const thinking = parsed.choices[0].delta.reasoning;
-                            const answering = parsed.choices[0].delta.content;
+                            const thinking = parsed.choices[0].delta.reasoning|| '';
+                            const answering = parsed.choices[0].delta.content|| '';
 
                             set((state) => {
                                 const messages = [...state.messages];

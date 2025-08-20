@@ -2,8 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import NewChatIcon from "../Icons/NewChatIcon";
-import SearchIcon from "../Icons/SearchIcon";
-import { useSidebarState } from "@/app/lib/store/useSidebarState";
+/* import SearchIcon from "../Icons/SearchIcon";
+ */import { useSidebarState } from "@/app/lib/store/useSidebarState";
 import { useResponsive } from "@/app/lib/hooks/useResponsive";
 import SidebarToggleButton from "./SidebarToggleButton";
 import SidebarLogo from "./SidebarLogo";
@@ -22,9 +22,9 @@ const Sidebar: React.FC = () => {
     const router = useRouter();
     const {clear} = useChatStore();
     
-    const handleSearchClick = () => {
+/*     const handleSearchClick = () => {
         // Future implementation
-    }
+    } */
 
     const handleSidebarClick = () => {
         setSidebar();

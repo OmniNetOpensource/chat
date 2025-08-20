@@ -12,7 +12,7 @@ interface ResponsiveProviderProps{
 
 export const ResponsiveProvider = ({children}:ResponsiveProviderProps)=>{
 
-    const {isMobile,setIsMobile} = useResponsiveStore();
+    const {setIsMobile} = useResponsiveStore();
 
     useEffect(()=>{
         if(typeof window === 'undefined') return;
@@ -31,7 +31,7 @@ export const ResponsiveProvider = ({children}:ResponsiveProviderProps)=>{
             mql.removeEventListener('change',apply);
         }
         return remove;
-    },[]);
+    },[setIsMobile]);
 
     return (
         <>{children}</>

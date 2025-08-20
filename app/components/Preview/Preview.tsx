@@ -12,14 +12,9 @@ interface PreviewProps {
     rawContent: MessageContent[];
 }
 
-const MessageRenderer = ({ msg, index }: { msg: MessageContent, index: number }) => {
+const MessageRenderer = ({ msg, index }: { msg: MessageContent, index: string }) => {
     const [isExpand, setIsExpand] = useState<boolean>(false);
     const {status} = useChatStore();
-    
-    if (msg.type !== 'text' && msg.type !== 'thinking') {
-        return null;
-    }
-
     const html = useRenderContent(msg.text);
 
     if (msg.type === 'text') {
@@ -27,13 +22,14 @@ const MessageRenderer = ({ msg, index }: { msg: MessageContent, index: number })
             <div
                 className="preview-content show-area"
                 dangerouslySetInnerHTML={{ __html: html }}
+                key={index}
             />
         );
     }
     
     if (msg.type === 'thinking') {
         return (
-            <>
+            <div key={index}>
                 <button onClick={()=>{setIsExpand(!isExpand)}} className="cursor-pointer">
                     { status === 'streaming'
                         ? <SlideLight text={`Thinking...`}/>
@@ -47,7 +43,7 @@ const MessageRenderer = ({ msg, index }: { msg: MessageContent, index: number })
                         dangerouslySetInnerHTML={{ __html: html }}
                     />
                 </div>
-            </>
+            </div >
         );
     }
 
@@ -93,9 +89,12 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ rawContent }, parent
 
     return (
         <div ref={localRef} className="h-fit w-full text-text-primary overflow-y-auto rounded-inherit">
-            {rawContent.map((msg, index) => (
-                <MessageRenderer key={index} msg={msg} index={index} />
-            ))}
+            {rawContent.map((msg, index) => {
+            const stableKey = `${msg.type}-${msg.text.substring(0, 20).replace(/\s/g, '')}-${index}`;
+               return (
+                    <MessageRenderer key={index} msg={msg} index={stableKey} />
+                );
+            })}
         </div>
     );
 });
