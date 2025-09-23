@@ -16,7 +16,11 @@ const Conversation: React.FC = () => {
         <MessageList />
       </div>
 
-      <ChatInput />
+      <ChatInput
+        index={999}
+        fileContent={[]}
+        textContent=""
+      />
     </div>
   );
 };

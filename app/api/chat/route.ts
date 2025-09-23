@@ -15,6 +15,7 @@ export async function POST(req:NextRequest){
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
+      
     });
     
     return new Response(response.body, {

@@ -1,100 +1,144 @@
-"use client";
-
-import React, { useState, useRef, type ChangeEvent, useEffect } from 'react';
-import UpArrowIcon from '../Icons/UpArrowIcon';
-import LoadingIcon from '../Icons/LoadingIcon';
+'use client';
+import React, { useState, type ChangeEvent, useEffect, useRef } from 'react';
 import { useResponsive } from '@/app/lib/hooks/useResponsive';
+import { useFileUpload } from '@/app/lib/hooks/useFileUpload';
 import { useChatStore } from '@/app/lib/store/useChatStore';
-
-const ChatInput: React.FC = () => {
+import { type Content } from '@/app/lib/store/useChatStore';
+import CloseIcon from '../Icons/CloseIcon';
+import AttachIcon from '../Icons/AttachIcon';
+import LoadingIcon from '../Icons/LoadingIcon';
+import UpArrowIcon from '../Icons/UpArrowIcon';
+import ImageViewer from '../ImageViewer/ImageViewer';
+interface ChatInputProps {
+  index: number;
+  fileContent: string[];
+  textContent: string;
+  editing?: boolean;
+  onFinishEdit?: () => void;
+}
+const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: ChatInputProps) => {
+  const { files, initFiles, removeFiles, addFiles } = useFileUpload();
+  const { isMobile } = useResponsive();
   const { status, sendMessage } = useChatStore();
-  const [text, setText] = useState<string>('');
+  const [text, setText] = useState<string>(textContent);
+  const [canClick, setCanClick] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const initialTextareaHeight = 24;
-  const {isMobile} = useResponsive();
-
-  const adjustTextareaHeight = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = `${initialTextareaHeight}px`;
-      const lineHeight = 24;
-      const maxHeight = isMobile ? lineHeight * 5 : lineHeight * 7;
-      const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-      textarea.style.height = `${newHeight}px`;
+  useEffect(() => {
+    setCanClick(text.trim().length > 0 || files.length > 0 || status === 'streaming');
+  }, [text, files, status]);
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    initFiles(fileContent);
+  }, []);
+  /* eslint-enable react-hooks/exhaustive-deps */
+  const handleSend = () => {
+    let contentToSend: Content[] = [];
+    contentToSend = files.map((file) => ({ type: 'image_url', image_url: { url: file.base64 } }));
+    contentToSend.push({ type: 'text', text: text });
+    sendMessage(index, contentToSend);
+    setText('');
+    initFiles([]);
+    if (editing && onFinishEdit) {
+      onFinishEdit();
     }
   };
-
   const handleTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
-    adjustTextareaHeight();
-  };
-
-  const canSend = text.trim().length > 0;
-
-  const handleSendMessage = () => {
-    console.log(1,text);
-    if (canSend && status === 'ready') {
-      console.log(2,text);
-      sendMessage([{type:'text',text:text}]);
-      setText('');
-      if (textareaRef.current) {
-        textareaRef.current.style.height = `${initialTextareaHeight}px`;
-      }
-      
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      return;
     }
-  };  
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const maxLines = isMobile ? 5 : 7;
+    const lineHeight = 24;
+    const maxHeight = lineHeight * maxLines;
+    textarea.style.height = 'auto';
+    const scrollHeight = textarea.scrollHeight;
+    textarea.style.height = `${Math.min(maxHeight, scrollHeight)}px`;
+  };
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
-      if (canSend) {
-        handleSendMessage();
-      }
+      handleSend();
     }
   };
-
-  useEffect(() => {
-    console.log(status);
-  }, [status])
-
-
+  const containerPositionClass = editing
+    ? 'relative'
+    : 'absolute bottom-1.5 left-1/2 transform -translate-x-1/2';
+  const widthClass = isMobile ? 'w-[95%]' : editing ? 'w-[60%]' : 'w-[46%]';
   return (
     <div
-      className={`absolute bottom-1.5 left-1/2 transform -translate-x-1/2 ${
-        isMobile ? 'w-[95%]' : 'w-[46%]'
-      } rounded-lg ${isMobile ? 'px-1.5 py-1.5' : 'px-2 py-2'} 
-      bg-secondary flex flex-col gap-3 border-none 
-      transition-all duration-300 ease-in-out`}
+      className={`${containerPositionClass} ${widthClass} ${isMobile ? 'px-1.5 py-1.5' : 'px-2 py-2'}
+    bg-secondary flex flex-col gap-0 border-none
+    transition-all duration-700 ease-in-out`}
     >
+      {files.length > 0 && (
+        <div className="flex flex-row gap-1 w-full h-fit m-0 p-0">
+          {files.map((file) => (
+            <div
+              key={file.id}
+              className="relative"
+            >
+              <ImageViewer imageUrl={file.base64} />
+              <button
+                onClick={() => removeFiles(file.id)}
+                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+              >
+                <CloseIcon
+                  width={10}
+                  height={10}
+                />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
       <textarea
         ref={textareaRef}
-        className="bg-transparent w-full text-sm overflow-y-auto focus:outline-none focus:border-none resize-none pl-1.5"
+        className="bg-transparent w-full text-sm overflow-y-auto focus:outline-none focus:border-none resize-none pl-1.5 mb-3"
         placeholder="prompt in , everything out"
         value={text}
         onChange={handleTextAreaChange}
         onKeyDown={handleKeyDown}
-        style={{ height: `${initialTextareaHeight}px` }}
+        style={{ height: '24px' }}
       />
-
-      <div className="my-0 mx-0 w-full h-[32px] flex flex-row gap-1 justify-end">
+      <div className="my-0 mx-0 w-full h-[32px] flex flex-row gap-1 justify-between items-center">
+        <button
+          onClick={() => document.getElementById('file-upload')?.click()}
+          className={`cursor-pointer p-1 rounded-md hover:bg-hoverbg transition-colors`}
+        >
+          <AttachIcon
+            width={20}
+            height={20}
+          />
+        </button>
+        <input
+          id="file-upload"
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={addFiles}
+        />
         <button
           className={`bg-primary ${
-            status === 'streaming'  || (canSend && status === 'ready')
-              ? ' cursor-pointer opacity-100'
-              : 'cursor-not-allowed opacity-10'
-          } rounded-md py-1 px-[5px]
-            text-secondary`}
-          onClick={status === 'streaming'? stop : handleSendMessage}
+            canClick ? 'cursor-pointer opacity-100' : 'cursor-not-allowed opacity-10'
+          } rounded-md py-1 px-[5px] text-secondary transition-opacity`}
+          onClick={status === 'streaming' ? stop : handleSend}
+          disabled={!canClick}
         >
           {status === 'streaming' ? (
-            <LoadingIcon width={20} height={20} />
+            <LoadingIcon
+              width={20}
+              height={20}
+            />
           ) : (
-            <UpArrowIcon width={20} height={20} />
+            <UpArrowIcon
+              width={20}
+              height={20}
+            />
           )}
         </button>
       </div>
     </div>
   );
 };
-
 export default ChatInput;
