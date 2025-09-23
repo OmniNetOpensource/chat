@@ -1,7 +1,6 @@
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
 import { ResponsiveProvider } from './components/Responsive/ResponsiveProvider';
-import ImageViewer from './components/ImageViewer/ImageViewer';
 
 
 export const metadata = {
