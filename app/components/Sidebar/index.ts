@@ -1,17 +1,11 @@
 import Sidebar from "./Sidebar";
 import SidebarButton from "./SidebarButton";
-import SidebarContainer from "./SidebarContainer";
-import SidebarLogo from "./SidebarLogo";
-import SidebarOverlay from "./SidebarOverlay";
-import SidebarToggleButton from "./SidebarToggleButton";
+import ConversationHistory from "./ConversationHistory";
 
 export {
   Sidebar,
   SidebarButton,
-  SidebarContainer,
-  SidebarLogo,
-  SidebarOverlay,
-  SidebarToggleButton
+  ConversationHistory
 };
 
 export default Sidebar;

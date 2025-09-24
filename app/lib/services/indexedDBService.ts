@@ -33,9 +33,12 @@ export async function saveConversation(conversation:ConversationRecord) {
 }
 
 
-export async function getConversation(id:string){
-    const db = await openDatabase();
-    return db.get(CONVERSATION_STORE,id);
+export async function getConversation(id: string | null | undefined) {
+  if (!id) {
+    return null;
+  }
+  const db = await openDatabase();
+  return db.get(CONVERSATION_STORE, id);
 }
 
 

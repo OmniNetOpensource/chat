@@ -114,7 +114,7 @@ const MessageList: React.FC = () => {
               group-hover:opacity-100
               `}
               >
-                {status === 'ready' && (
+                {(status === 'ready' || msg.role === 'user') && (
                   <button
                     className={`${
                       isMobile ? 'w-[32px] h-[32px]' : 'w-[24px] h-[24px]'

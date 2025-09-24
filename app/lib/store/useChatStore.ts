@@ -45,6 +45,9 @@ interface UseChatStoreProps {
 
   currentConversationId: string | null;
   loadConversation: (id: string) => Promise<string | null>; // Return conversationId
+
+  model: string;
+  setModel: (modelName: string) => void;
 }
 
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
@@ -56,22 +59,52 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       status: 'streaming',
       controller: controller,
     });
+
+    const messagesToSend = get().messages.map((msg) => {
+      return {
+        role: msg.role,
+        content: msg.content.filter((c) => c.type !== 'thinking'),
+      };
+    });
+
     let conversationId = get().currentConversationId;
     let isNewConversation = false;
-    try {
-      const messagesToSend = get().messages.map((msg) => {
-        return {
-          role: msg.role,
-          content: msg.content.filter((c) => c.type !== 'thinking'),
-        };
+
+    if (conversationId) {
+      const existing = await getConversation(conversationId);
+      if (existing) {
+        await saveConversation({
+          ...existing,
+          messages: get().messages,
+          updatedAt: Date.now(),
+        });
+      }
+    } else {
+      isNewConversation = true;
+      conversationId = crypto.randomUUID();
+      const title = get()
+        .messages[0].content.filter((m) => m.type === 'text')
+        .map((m) => m.text)
+        .join('')
+        .slice(0, 10);
+      await saveConversation({
+        id: conversationId,
+        title,
+        messages: get().messages,
+        createdAt: Date.now(),
+        updatedAt: Date.now(),
       });
+      set({ currentConversationId: conversationId });
+    }
+
+    try {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'x-ai/grok-4-fast:free',
+          model: get().model,
           messages: messagesToSend,
           stream: true,
         }),
@@ -89,32 +122,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error('Response body is not readable');
-      }
-
-      if (conversationId) {
-        const existing = await getConversation(conversationId);
-        if (existing) {
-          await saveConversation({
-            ...existing,
-            messages: get().messages,
-            updatedAt: Date.now(),
-          });
-        }
-      } else {
-        isNewConversation = true;
-        conversationId = crypto.randomUUID();
-        const title = get()
-          .messages[0].content.filter((m) => m.type === 'text')
-          .join('')
-          .slice(0, 10);
-        await saveConversation({
-          id: conversationId,
-          title,
-          messages: get().messages,
-          createdAt: Date.now(),
-          updatedAt: Date.now(),
-        });
-        set({ currentConversationId: conversationId });
       }
 
       const decoder = new TextDecoder();
@@ -248,9 +255,16 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
 
   currentConversationId: null,
   loadConversation: async (id) => {
+    if (!id) {
+      return null;
+    }
     const currentConversation = await getConversation(id);
     set({ messages: currentConversation.messages, currentConversationId: currentConversation.id });
     return currentConversation.id;
   },
   error: null,
+  model: 'x-ai/grok-4-fast:free',
+  setModel: (modelName) => {
+    set({ model: modelName });
+  },
 }));
