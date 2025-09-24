@@ -1,39 +1,46 @@
 'use client'
 
-import { useImageViewerStore } from "@/app/lib/store/useImageViewer";
 
-import Image from "next/image";
+import Image from 'next/image';
+import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
-
-interface ImageViewerProps{
-    imageUrl:string
+interface ImageViewerProps {
+  imageUrl: string;
 }
 
-const ImageViewer = ({imageUrl}:ImageViewerProps)=>{
+const ImageViewer = ({ imageUrl }: ImageViewerProps) => {
+  const [isOpen, setIsOpen] = useState<boolean>(false);
 
-    const {isOpen,handleClick} = useImageViewerStore();
+  const overlay = (
+    <div
+      className="fixed top-0 left-0 h-screen w-screen
+                flex items-center justify-center z-50
+                bg-black/50"
+      onClick={() => setIsOpen(!isOpen)}
+    >
+      <Image
+        src={imageUrl}
+        alt="fullscreen"
+        className="z-50 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
+        width={500}
+        height={500}
+      />
+    </div>
+  );
 
-
-    return (
-        <>
-            <Image src={imageUrl} alt="preview" width={100} height={100} onClick={handleClick}/>
-            {isOpen &&   
-                <div
-                    className="h-full w-full
-                                bg-black/50"
-                    onClick={handleClick}
-                >
-                    <Image
-                        src={imageUrl}
-                        alt="fullscreen"
-                        className="z-50"
-                        width={500}
-                        height={500}
-                    />
-                </div>}
-        </>
-    );
-}
-
+  return (
+    <>
+      <Image
+        src={imageUrl}
+        alt="preview"
+        width={100}
+        height={100}
+        onClick={() => setIsOpen(!isOpen)}
+      />
+      {isOpen && createPortal(overlay, document.body)}
+    </>
+  );
+};
 
 export default ImageViewer;

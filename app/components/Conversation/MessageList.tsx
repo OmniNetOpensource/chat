@@ -53,6 +53,7 @@ const MessageList: React.FC = () => {
         isMobile ? 'w-[90%]' : 'w-[46%]'
       } transition-all duration-300 ease-in-out`}
     >
+      <br />
       {messages.map((msg, index) => (
         <div
           key={index}
@@ -79,7 +80,9 @@ const MessageList: React.FC = () => {
               />
               <button
                 className="absolute top-0 right-0 z-20 -translate-y-1/2 translate-x-1/2
-               px-2 py-1 text-sm bg-neutral-800 text-text-primary rounded-md hover:bg-neutral-700"
+               px-2 py-1 text-sm bg-neutral-800 text-text-primary rounded-md
+                hover:bg-neutral-700
+                cursor-pointer"
                 onClick={() => handleFinishEdit(index)}
               >
                 cancle
@@ -97,7 +100,7 @@ const MessageList: React.FC = () => {
                       ? 'bg-user-message-background max-w-[60%] px-4 '
                       : 'bg-transparent max-w-[100%] px-4 py-2'
                   } 
-                  rounded-[15px] h-fit 
+                  rounded-[15px] h-fit flex flex-col items-center justify-center
                   transition-all duration-300 ease-in-out`}
                 >
                   <Preview rawContent={msg.content} />
@@ -105,46 +108,48 @@ const MessageList: React.FC = () => {
               </div>
 
               <div
-                className={`h-[32px] flex flex-row ${
-                  isMobile ? 'gap-2' : 'gap-6'
+                className={`flex flex-row ${
+                  isMobile ? 'h-[36px] gap-3' : 'h-[28px] gap-0.5'
                 } items-center ${msg.role === 'user' ? 'justify-end' : 'justify-start'}
-              opacity-0 group-hover:opacity-100
+              group-hover:opacity-100
               `}
               >
-                <button
-                  className={`${
-                    isMobile ? 'w-[24px] h-[24px]' : 'w-[32px] h-[32px]'
-                  } transition-all duration-300 ease-in-out hover:bg-hoverbg rounded-md flex justify-center items-center cursor-pointer`}
-                  onClick={() =>
-                    handleCopy(
-                      msg.content.map((m) => (m.type === 'text' ? m.text : '')).join(),
-                      index,
-                    )
-                  }
-                >
-                  {copiedId === index ? (
-                    <CheckIcon
-                      width={isMobile ? 14 : 18}
-                      height={isMobile ? 14 : 18}
-                    />
-                  ) : (
-                    <CopyIcon
-                      width={isMobile ? 14 : 18}
-                      height={isMobile ? 14 : 18}
-                    />
-                  )}
-                </button>
+                {status === 'ready' && (
+                  <button
+                    className={`${
+                      isMobile ? 'w-[32px] h-[32px]' : 'w-[24px] h-[24px]'
+                    } transition-all duration-300 ease-in-out hover:bg-hoverbg rounded-md flex justify-center items-center cursor-pointer`}
+                    onClick={() =>
+                      handleCopy(
+                        msg.content.map((m) => (m.type === 'text' ? m.text : '')).join(),
+                        index,
+                      )
+                    }
+                  >
+                    {copiedId === index ? (
+                      <CheckIcon
+                        width={isMobile ? 20 : 16}
+                        height={isMobile ? 20 : 16}
+                      />
+                    ) : (
+                      <CopyIcon
+                        width={isMobile ? 20 : 16}
+                        height={isMobile ? 20 : 16}
+                      />
+                    )}
+                  </button>
+                )}
 
                 {msg.role === 'assistant' && status === 'ready' && (
                   <button
                     className={`${
-                      isMobile ? 'w-[24px] h-[24px]' : 'w-[32px] h-[32px]'
+                      isMobile ? 'w-[32px] h-[32px]' : 'w-[24px] h-[24px]'
                     } transition-all duration-300 ease-in-out hover:bg-hoverbg rounded-md flex justify-center items-center cursor-pointer`}
                     onClick={() => regenerate(index)}
                   >
                     <RedoIcon
-                      width={isMobile ? 14 : 18}
-                      height={isMobile ? 14 : 18}
+                      width={isMobile ? 20 : 16}
+                      height={isMobile ? 20 : 16}
                     />
                   </button>
                 )}
@@ -152,13 +157,13 @@ const MessageList: React.FC = () => {
                 {msg.role === 'user' && status === 'ready' && (
                   <button
                     className={`${
-                      isMobile ? 'w-[24px] h-[24px]' : 'w-[32px] h-[32px]'
+                      isMobile ? 'w-[32px] h-[32px]' : 'w-[24px] h-[24px]'
                     } transition-all duration-300 ease-in-out hover:bg-hoverbg rounded-md flex justify-center items-center cursor-pointer`}
                     onClick={() => handleStartEdit(index)}
                   >
                     <EditIcon
-                      width={isMobile ? 14 : 18}
-                      height={isMobile ? 14 : 18}
+                      width={isMobile ? 20 : 16}
+                      height={isMobile ? 20 : 16}
                     />
                   </button>
                 )}
@@ -178,4 +183,5 @@ const MessageList: React.FC = () => {
 };
 
 export default MessageList;
+
 

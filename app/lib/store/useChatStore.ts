@@ -1,6 +1,7 @@
 'use client';
 
 import { create } from 'zustand';
+import { saveConversation, getConversation } from '../services/indexedDBService';
 
 interface TextContent {
   type: 'text';
@@ -23,27 +24,27 @@ interface ThinkingContent {
 
 export type Content = TextContent | ThinkingContent | ImageContent;
 
-interface Message {
+export interface Message {
   role: 'user' | 'system' | 'assistant';
   content: Content[];
 }
 
 interface UseChatStoreProps {
   messages: Message[];
-  sendMessage: (index: number, content: Content[]) => void;
+  sendMessage: (index: number, content: Content[]) => Promise<string | null>; // Return conversationId for new conversations
   stop: () => void;
   regenerate: (index: number) => void;
   controller: AbortController | undefined;
   status: 'ready' | 'streaming';
   clear: () => void;
 
-  currentMessage: Content[];
   currentThinkingId: string;
 
-  addContent: (content: Content) => void;
-  removeContent: (index: number) => void;
-
   editing: number;
+  error: string | null;
+
+  currentConversationId: string | null;
+  loadConversation: (id: string) => Promise<string | null>; // Return conversationId
 }
 
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
@@ -55,7 +56,8 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       status: 'streaming',
       controller: controller,
     });
-
+    let conversationId = get().currentConversationId;
+    let isNewConversation = false;
     try {
       const messagesToSend = get().messages.map((msg) => {
         return {
@@ -69,7 +71,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: '@preset/gemini',
+          model: 'x-ai/grok-4-fast:free',
           messages: messagesToSend,
           stream: true,
         }),
@@ -77,13 +79,42 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       });
 
       if (!response.ok) {
-        console.error('no response');
-        return;
+        const errorText = await response.text();
+        set({
+          error: `Failed to send message: ${response.status} ${response.statusText}. ${errorText}`,
+        });
+        return null;
       }
 
       const reader = response.body?.getReader();
       if (!reader) {
         throw new Error('Response body is not readable');
+      }
+
+      if (conversationId) {
+        const existing = await getConversation(conversationId);
+        if (existing) {
+          await saveConversation({
+            ...existing,
+            messages: get().messages,
+            updatedAt: Date.now(),
+          });
+        }
+      } else {
+        isNewConversation = true;
+        conversationId = crypto.randomUUID();
+        const title = get()
+          .messages[0].content.filter((m) => m.type === 'text')
+          .join('')
+          .slice(0, 10);
+        await saveConversation({
+          id: conversationId,
+          title,
+          messages: get().messages,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+        set({ currentConversationId: conversationId });
       }
 
       const decoder = new TextDecoder();
@@ -170,12 +201,22 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
           }
         }
       }
+      return isNewConversation ? conversationId : null;
     } catch (error) {
       if (!(error instanceof Error && error.name === 'AbortError')) {
         console.error('Request error:', error);
       }
+      return null;
     } finally {
-      set({ status: 'ready', controller: undefined, currentMessage: [] });
+      set({ status: 'ready', controller: undefined });
+      const existing = await getConversation(get().currentConversationId as string);
+      if (existing) {
+        await saveConversation({
+          ...existing,
+          messages: get().messages,
+          updatedAt: Date.now(),
+        });
+      }
     }
   },
 
@@ -196,20 +237,20 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       messages: [],
       status: 'ready',
       controller: undefined,
-      currentMessage: [],
+      currentConversationId: null,
+      currentThinkingId: '',
     });
   },
   currentMessage: [],
   currentThinkingId: '',
-  addContent: (content) => {
-    set((state) => ({
-      currentMessage: [...state.currentMessage, content],
-    }));
-  },
-  removeContent: (index: number) => {
-    set((state) => ({
-      currentMessage: state.currentMessage.filter((_, i) => i !== index),
-    }));
-  },
+
   editing: -1,
+
+  currentConversationId: null,
+  loadConversation: async (id) => {
+    const currentConversation = await getConversation(id);
+    set({ messages: currentConversation.messages, currentConversationId: currentConversation.id });
+    return currentConversation.id;
+  },
+  error: null,
 }));

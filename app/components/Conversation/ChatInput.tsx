@@ -1,5 +1,6 @@
 'use client';
 import React, { useState, type ChangeEvent, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import { useResponsive } from '@/app/lib/hooks/useResponsive';
 import { useFileUpload } from '@/app/lib/hooks/useFileUpload';
 import { useChatStore } from '@/app/lib/store/useChatStore';
@@ -16,8 +17,10 @@ interface ChatInputProps {
   editing?: boolean;
   onFinishEdit?: () => void;
 }
+
 const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: ChatInputProps) => {
   const { files, initFiles, removeFiles, addFiles } = useFileUpload();
+  const router = useRouter();
   const { isMobile } = useResponsive();
   const { status, sendMessage } = useChatStore();
   const [text, setText] = useState<string>(textContent);
@@ -31,19 +34,25 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     initFiles(fileContent);
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
-  const handleSend = () => {
+  const handleSend = async () => {
     let contentToSend: Content[] = [];
     contentToSend = files.map((file) => ({ type: 'image_url', image_url: { url: file.base64 } }));
     contentToSend.push({ type: 'text', text: text });
-    sendMessage(index, contentToSend);
     setText('');
     initFiles([]);
     if (editing && onFinishEdit) {
       onFinishEdit();
     }
+    const newConversationId = await sendMessage(index, contentToSend);
+    if (newConversationId) {
+      router.push(`/c/${newConversationId}`);
+    }
   };
   const handleTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
+  };
+
+  useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) {
       return;
@@ -51,23 +60,23 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     const maxLines = isMobile ? 5 : 7;
     const lineHeight = 24;
     const maxHeight = lineHeight * maxLines;
-    textarea.style.height = 'auto';
+    textarea.style.height = '0px';
     const scrollHeight = textarea.scrollHeight;
     textarea.style.height = `${Math.min(maxHeight, scrollHeight)}px`;
-  };
+  }, [text, isMobile]);
+
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
-  const containerPositionClass = editing
-    ? 'relative'
-    : 'absolute bottom-1.5 left-1/2 transform -translate-x-1/2';
-  const widthClass = isMobile ? 'w-[95%]' : editing ? 'w-[60%]' : 'w-[46%]';
+
   return (
     <div
-      className={`${containerPositionClass} ${widthClass} ${isMobile ? 'px-1.5 py-1.5' : 'px-2 py-2'}
+      className={`${editing ? 'relative' : 'absolute bottom-1.5 left-1/2 transform -translate-x-1/2'} 
+      ${isMobile ? 'w-[95%]' : editing ? 'w-[60%]' : 'w-[46%]'} 
+      ${isMobile ? 'px-1.5 py-1.5' : 'px-2 py-2'}
     bg-secondary flex flex-col gap-0 border-none
     transition-all duration-700 ease-in-out`}
     >

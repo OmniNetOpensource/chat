@@ -64,3 +64,10 @@ html.dark {
   }
 }
 
+::selection {
+  background-color: #4f2673;
+}
+
+::-moz-selection {
+  background-color: #4f2673;
+}

@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "packageManager": "pnpm@10.14.0",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -20,6 +21,7 @@
     "ai": "^5.0.12",
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",
+    "idb": "^8.0.3",
     "immer": "^10.1.1",
     "marked": "^16.1.2",
     "marked-highlight": "^2.2.2",
