@@ -1,4 +1,4 @@
-'use client';
+﻿'use client';
 
 import { useEffect, useState } from 'react';
 import MoonIcon from '../Icons/MoonIcon';
@@ -18,7 +18,7 @@ type OpenRouterModelsResponse = {
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
-
+  const [mounted, setMounted] = useState(false);
   const { model, setModel } = useChatStore();
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -41,6 +41,7 @@ const Header = () => {
       try {
         const res = await fetch('/api/models', { cache: 'no-cache' });
         if (!res.ok) {
+          setError(`HTTP ${res.status}`);
           throw new Error(`HTTP ${res.status}`);
         }
         const json: OpenRouterModelsResponse = await res.json();
@@ -53,7 +54,18 @@ const Header = () => {
         setLoading(false);
       }
     })();
+    setMounted(true);
+    const currentModel = localStorage.getItem('model');
+    if (currentModel) {
+      setModel(currentModel);
+    }
   }, []);
+
+  const handleModelSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setModel(value);
+    localStorage.setItem('model', value);
+  };
 
   return (
     <div
@@ -62,17 +74,29 @@ const Header = () => {
                         py-[3px]
                         px-4"
     >
-      <div className="relative h-fit w-fit">
-        <select id="modelSelect">
-          {availableModels.map((model, index) => (
-            <option
-              key={index}
-              value={model}
-            >
-              {model}
-            </option>
-          ))}
-        </select>
+      <div className="relative h-fit w-fit ">
+        {error ? (
+          <span className="text-red-500">error</span>
+        ) : loading ? (
+          <span className="">loading...</span>
+        ) : (
+          <select
+            id="modelSelect"
+            value={model}
+            onChange={handleModelSelect}
+            className="hover:bg-hoverbg px-4 py-2 rounded-xl
+            appearance-none cursor-pointer bg-chat-background text-text-primary"
+          >
+            {availableModels.map((model) => (
+              <option
+                key={model}
+                value={model}
+              >
+                {model}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
       <button
         onClick={handleToggleTheme}
@@ -82,7 +106,7 @@ const Header = () => {
                             w-[40px] h-[40px]
                             flex justify-center items-center"
       >
-        {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+        {mounted === true && theme === 'dark' ? <SunIcon /> : <MoonIcon />}
       </button>
     </div>
   );
