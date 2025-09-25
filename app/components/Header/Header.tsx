@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import MoonIcon from "../Icons/MoonIcon";
-import SunIcon from "../Icons/SunIcon";
-import { useTheme } from "next-themes";
+import { useEffect, useState } from 'react';
+import MoonIcon from '../Icons/MoonIcon';
+import SunIcon from '../Icons/SunIcon';
+import { useTheme } from 'next-themes';
 import { useChatStore } from '@/app/lib/store/useChatStore';
 
 type OpenRouterModelsResponse = {
@@ -63,7 +63,6 @@ const Header = () => {
                         px-4"
     >
       <div className="relative h-fit w-fit">
-        <label htmlFor="modelSelect">{model}</label>
         <select id="modelSelect">
           {availableModels.map((model, index) => (
             <option
