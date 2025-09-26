@@ -65,9 +65,17 @@ html.dark {
 }
 
 ::selection {
-  background-color: #4f2673;
+  background-color: #b092f5;
 }
 
 ::-moz-selection {
+  background-color: #b092f5;
+}
+
+html.dark ::selection {
+  background-color: #4f2673;
+}
+
+html.dark ::-moz-selection {
   background-color: #4f2673;
 }
