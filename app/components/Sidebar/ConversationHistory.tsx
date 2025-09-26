@@ -26,18 +26,20 @@ const ConversationHistory = () => {
 
     return (
       <div
-        className="flex flex-col items-center justify-start h-fit max-h-[100%] w-full gap-2
+        className="flex flex-col items-center justify-start h-fit max-h-[100%] w-full gap-2 px-2
       overflow-y-auto"
       >
         {conversationHistories.map((conv) => {
           return (
-            <span
-              className="cursor-pointer hover:bg-hoverbg px-4 py-2 rounded-2xl"
+            <div
               key={conv.id}
+              className="h-fit w-full py-2 hover:bg-hoverbg rounded-xl flex flex-col items-center justify-center
+              cursor-pointer
+              "
               onClick={() => handleLoadConversation(conv.id)}
             >
-              {conv.title}
-            </span>
+              <span className="">{conv.title}</span>
+            </div>
           );
         })}
       </div>
