@@ -1,43 +1,78 @@
 ﻿'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { useChatStore } from '@/app/lib/store/useChatStore';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import { useChatStore } from '@/app/lib/store/useChatStore';
 
 type OpenRouterModelsResponse = {
-  data: Array<{
-    id: string;
-    // If we need more fields later, they can be added incrementally.
-    // name?: string;
-    // context_length?: number;
-    // pricing?: { prompt?: number; completion?: number };
-  }>;
+  data: Array<{ id: string }>;
 };
 
-const ModelSelect = () => {
+const ModelList = ({ models, onSelect }: { models: string[]; onSelect: (id: string) => void }) => {
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: models.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 45,
+    overscan: 8,
+  });
+
+  const items = virtualizer.getVirtualItems();
+
+  return (
+    <div
+      ref={parentRef}
+      style={{ height: 300, width: 300, overflowY: 'auto', contain: 'strict' }}
+      className="rounded-xl border border-gray-200 dark:border-gray-700 bg-popover shadow-md"
+    >
+      <div
+        style={{
+          height: virtualizer.getTotalSize(),
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        <div
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            transform: `translateY(${items[0]?.start ?? 0}px)`,
+          }}
+        >
+          {items.map((vr) => (
+            <button
+              key={vr.key}
+              data-index={vr.index}
+              ref={virtualizer.measureElement}
+              onClick={() => onSelect(models[vr.index])}
+              className="block w-full text-left px-3 py-2 hover:bg-hoverbg focus:bg-hoverbg"
+            >
+              {models[vr.index]}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default function ModelSelect() {
   const { model, setModel } = useChatStore();
   const [availableModels, setAvailableModels] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
-  const [showSelector, setShowSelector] = useState<boolean>(false);
-  const parentRef = useRef(null);
-
-  const handleModelSelectorClick = () => {
-    setShowSelector((prev) => !prev);
-  };
+  const [showSelector, setShowSelector] = useState(false);
 
   useEffect(() => {
     (async () => {
       try {
         const res = await fetch('/api/models', { cache: 'no-cache' });
-        if (!res.ok) {
-          setError(`HTTP ${res.status}`);
-          throw new Error(`HTTP ${res.status}`);
-        }
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json: OpenRouterModelsResponse = await res.json();
-
-        const ids = (json?.data ?? []).map((m) => m.id);
-        setAvailableModels(ids);
+        setAvailableModels((json?.data ?? []).map((m) => m.id));
       } catch (e: any) {
         setError(e.message || 'failed to load models');
       } finally {
@@ -46,62 +81,42 @@ const ModelSelect = () => {
     })();
 
     const currentModel = localStorage.getItem('model');
-    if (currentModel) {
-      setModel(currentModel);
-    }
+    if (currentModel) setModel(currentModel);
   }, [setModel]);
 
-  const virtualizer = useVirtualizer({
-    count: availableModels.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 45,
-  });
-
-  const items = virtualizer.getVirtualItems();
+  const onPick = (id: string) => {
+    setModel(id);
+    try {
+      localStorage.setItem('model', id);
+    } catch {}
+    setShowSelector(false);
+  };
 
   return (
-    <div className="relative h-fit w-fit ">
+    <div className="relative h-fit w-fit">
       {error ? (
         <span className="text-red-500">error</span>
       ) : loading ? (
-        <span className="">loading...</span>
+        <span>loading...</span>
       ) : (
-        <button
-          onClick={handleModelSelectorClick}
-          className="cursor-pointer  hover:bg-hoverbg px-4 py-2 rounded-xl relative"
-        >
-          <span>{model}</span>
+        <>
+          <button
+            onClick={() => setShowSelector((v) => !v)}
+            className="cursor-pointer hover:bg-hoverbg px-4 py-2 rounded-xl"
+          >
+            <span>{model || 'Select model'}</span>
+          </button>
+
           {showSelector && (
-            <div
-              className="absolute top-[100%]"
-              ref={parentRef}
-              style={{ height: 400, width: 400, overflowY: 'auto' }}
-            >
-              <div
-                style={{ height: virtualizer.getTotalSize() }}
-                className="top-0 left-0 w-full"
-              >
-                <div
-                  style={{ transform: `translateY(${items[0]?.start ?? 0}px)` }}
-                  className="absolute top-0 left-0 w-full"
-                >
-                  {items.map((virtualRow) => (
-                    <div
-                      key={virtualRow.key}
-                      data-index={virtualRow.index}
-                      ref={virtualizer.measureElement}
-                    >
-                      {availableModels[virtualRow.index]}
-                    </div>
-                  ))}
-                </div>
-              </div>
+            <div className="absolute top-[100%] left-0 z-50 mt-2">
+              <ModelList
+                models={availableModels}
+                onSelect={onPick}
+              />
             </div>
           )}
-        </button>
+        </>
       )}
     </div>
   );
-};
-
-export default ModelSelect;
+}

@@ -1,15 +1,15 @@
-﻿'use client';
+'use client';
 
 import { useEffect, useState } from 'react';
 import MoonIcon from '../Icons/MoonIcon';
 import SunIcon from '../Icons/SunIcon';
 import { useTheme } from 'next-themes';
 import ModelSelect from './ModelSelect';
-
+import { useResponsive } from '@/app/lib/hooks/useResponsive';
 const Header = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
-
+  const { isMobile } = useResponsive();
   useEffect(() => {
     setMounted(true);
   }, []);
@@ -29,7 +29,9 @@ const Header = () => {
                         py-[3px]
                         px-4"
     >
-      <ModelSelect />
+      <div className={`flex-1 flex ${isMobile ? 'justify-center' : 'justify-start'}`}>
+        <ModelSelect />
+      </div>
       <button
         onClick={handleToggleTheme}
         className="cursor-pointer
