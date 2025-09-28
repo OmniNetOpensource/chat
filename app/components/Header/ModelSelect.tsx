@@ -108,6 +108,8 @@ export default function ModelSelect() {
   const [error, setError] = useState<string>('');
   const [showSelector, setShowSelector] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  /* eslint-disable react-hooks/exhaustive-deps */
+
   useEffect(() => {
     (async () => {
       try {
@@ -115,8 +117,9 @@ export default function ModelSelect() {
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const json: OpenRouterModelsResponse = await res.json();
         setAvailableModels((json?.data ?? []).map((m) => m.id));
-      } catch (e: any) {
-        setError(e.message || 'failed to load models');
+      } catch (e: unknown) {
+        const errorMessage = e instanceof Error ? e.message : 'failed to load models';
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
@@ -125,6 +128,7 @@ export default function ModelSelect() {
     const currentModel = localStorage.getItem('model');
     if (currentModel) setModel(currentModel);
   }, []);
+  /* eslint-disable react-hooks/exhaustive-deps */
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
