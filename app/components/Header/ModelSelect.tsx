@@ -11,8 +11,10 @@ type OpenRouterModelsResponse = {
 const ModelList = ({ models, onSelect }: { models: string[]; onSelect: (id: string) => void }) => {
   const parentRef = useRef<HTMLDivElement>(null);
 
+  const [currentModels, setCurrentModels] = useState<string[]>(models);
+  const [searchText, setSearchText] = useState<string>('');
   const virtualizer = useVirtualizer({
-    count: models.length,
+    count: currentModels.length,
     getScrollElement: () => parentRef.current,
     estimateSize: () => 45,
     overscan: 8,
@@ -20,42 +22,58 @@ const ModelList = ({ models, onSelect }: { models: string[]; onSelect: (id: stri
 
   const items = virtualizer.getVirtualItems();
 
+  const handleSearchInput = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const value = e.target.value.toLowerCase();
+    setSearchText(value);
+    const filtered = models.filter((model) => model.toLowerCase().includes(value));
+    setCurrentModels(filtered);
+  };
   return (
-    <div
-      ref={parentRef}
-      style={{ height: 300, width: 300, overflowY: 'auto', contain: 'strict' }}
-      className="rounded-xl border border-gray-200 dark:border-gray-700 bg-popover shadow-md"
-    >
+    <>
+      <div className="h-10 rounded-t-xl bg-popover">
+        <textarea
+          value={searchText}
+          className="resize-none w-full h-full px-3 pt-1.5 focus:outline-none focus:ring-0"
+          placeholder="search models"
+          onChange={handleSearchInput}
+        ></textarea>
+      </div>
       <div
-        style={{
-          height: virtualizer.getTotalSize(),
-          width: '100%',
-          position: 'relative',
-        }}
+        ref={parentRef}
+        style={{ height: 300, width: 300, overflowY: 'auto', contain: 'strict' }}
+        className="rounded-b-xl bg-popover shadow-md"
       >
         <div
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
+            height: virtualizer.getTotalSize(),
             width: '100%',
-            transform: `translateY(${items[0]?.start ?? 0}px)`,
+            position: 'relative',
           }}
         >
-          {items.map((vr) => (
-            <button
-              key={vr.key}
-              data-index={vr.index}
-              ref={virtualizer.measureElement}
-              onClick={() => onSelect(models[vr.index])}
-              className="block w-full text-left px-3 py-2 hover:bg-hoverbg focus:bg-hoverbg"
-            >
-              {models[vr.index]}
-            </button>
-          ))}
+          <div
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              transform: `translateY(${items[0]?.start ?? 0}px)`,
+            }}
+          >
+            {items.map((vr) => (
+              <button
+                key={vr.key}
+                data-index={vr.index}
+                ref={virtualizer.measureElement}
+                onClick={() => onSelect(currentModels[vr.index])}
+                className="block w-full text-left px-3 py-2 hover:bg-hoverbg focus:bg-hoverbg"
+              >
+                {currentModels[vr.index]}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 
