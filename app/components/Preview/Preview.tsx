@@ -1,9 +1,10 @@
+'use client';
 
-"use client";
-
-import useRenderContent from "./hooks/useRenderContent";
-
-import { useEffect, forwardRef, useRef, useImperativeHandle, useState } from 'react';
+import { useEffect, forwardRef, useRef, useImperativeHandle, useState, memo } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
+import rehypeKatex from 'rehype-katex';
 import './Preview.css';
 import 'katex/dist/katex.min.css';
 import { type Content, useChatStore } from '@/app/lib/store/useChatStore';
@@ -14,17 +15,22 @@ interface PreviewProps {
   rawContent: Content[];
 }
 
-const MessageRenderer = ({ msg }: { msg: Content }) => {
+const MessageRenderer = memo(({ msg }: { msg: Content }) => {
   const [isExpand, setIsExpand] = useState<boolean>(false);
   const { currentThinkingId, status } = useChatStore();
-  const html = useRenderContent('text' in msg ? msg.text : '');
+
+  const contentText = 'text' in msg ? msg.text : '';
 
   if (msg.type === 'text') {
     return (
-      <div
-        className="preview-content show-area"
-        dangerouslySetInnerHTML={{ __html: html }}
-      />
+      <div className="preview-content show-area">
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          rehypePlugins={[rehypeRaw, rehypeKatex]}
+        >
+          {contentText}
+        </ReactMarkdown>
+      </div>
     );
   }
 
@@ -48,17 +54,23 @@ const MessageRenderer = ({ msg }: { msg: Content }) => {
             isExpand ? 'max-h-96' : 'max-h-0'
           } opacity-60 text-sm leading-tight overflow-y-auto`}
         >
-          <div
-            className="preview-content show-area p-2"
-            dangerouslySetInnerHTML={{ __html: html }}
-          />
+          <div className="preview-content show-area p-2">
+            <ReactMarkdown
+              remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw, rehypeKatex]}
+            >
+              {contentText}
+            </ReactMarkdown>
+          </div>
         </div>
       </div>
     );
   }
 
   return null;
-};
+});
+
+MessageRenderer.displayName = 'MessageRenderer';
 
 const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ rawContent }, parentRef) => {
   const localRef = useRef<HTMLDivElement>(null);
