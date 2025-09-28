@@ -107,7 +107,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
           model: get().model,
           messages: messagesToSend,
           stream: true,
-          preset: '@preset/tutor',
+          //preset: '',
         }),
         signal: controller.signal,
       });

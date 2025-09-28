@@ -35,6 +35,12 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
   const handleSend = async () => {
+    console.log('handleSend called, text:', text, 'canClick:', canClick); // 调试信息
+    if (!text.trim() && files.length === 0) {
+      console.log('No content to send'); // 调试信息
+      return;
+    }
+
     let contentToSend: Content[] = [];
     contentToSend = files.map((file) => ({ type: 'image_url', image_url: { url: file.base64 } }));
     contentToSend.push({ type: 'text', text: text });
@@ -66,7 +72,9 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   }, [text, isMobile]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    console.log('Key pressed:', e.key, 'Shift:', e.shiftKey); // 调试信息
     if (e.key === 'Enter' && !e.shiftKey) {
+      console.log('Preventing default and sending message'); // 调试信息
       e.preventDefault();
       handleSend();
     }
@@ -107,7 +115,10 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
         placeholder="prompt in , everything out"
         value={text}
         onChange={handleTextAreaChange}
-        onKeyDown={handleKeyDown}
+        onKeyDown={(e) => {
+          console.log('Any key pressed:', e.key, 'in textarea');
+          handleKeyDown(e);
+        }}
         style={{ height: '24px' }}
       />
       <div className="my-0 mx-0 w-full h-[32px] flex flex-row gap-1 justify-between items-center">

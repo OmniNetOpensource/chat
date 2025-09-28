@@ -28,6 +28,30 @@ const ModelList = ({ models, onSelect }: { models: string[]; onSelect: (id: stri
     const filtered = models.filter((model) => model.toLowerCase().includes(value));
     setCurrentModels(filtered);
   };
+
+  const highlightSearchText = (text: string, searchText: string) => {
+    if (!searchText.trim()) {
+      return text;
+    }
+
+    const regex = new RegExp(`(${searchText.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`, 'gi');
+
+    const parts = text.split(regex);
+
+    return parts.map((part, index) => {
+      if (part.toLowerCase() === searchText.toLowerCase()) {
+        return (
+          <span
+            key={index}
+            className="bg-yellow-200 dark:bg-yellow-800 font-medium"
+          >
+            {part}
+          </span>
+        );
+      }
+      return part;
+    });
+  };
   return (
     <>
       <div className="h-10 rounded-t-xl bg-popover">
@@ -67,7 +91,7 @@ const ModelList = ({ models, onSelect }: { models: string[]; onSelect: (id: stri
                 onClick={() => onSelect(currentModels[vr.index])}
                 className="block w-full text-left px-3 py-2 hover:bg-hoverbg focus:bg-hoverbg"
               >
-                {currentModels[vr.index]}
+                {highlightSearchText(currentModels[vr.index], searchText)}
               </button>
             ))}
           </div>
@@ -83,7 +107,7 @@ export default function ModelSelect() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
   const [showSelector, setShowSelector] = useState(false);
-
+  const dropdownRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     (async () => {
       try {
@@ -100,7 +124,23 @@ export default function ModelSelect() {
 
     const currentModel = localStorage.getItem('model');
     if (currentModel) setModel(currentModel);
-  }, [setModel]);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setShowSelector(false);
+      }
+    };
+
+    if (showSelector) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSelector]);
 
   const onPick = (id: string) => {
     setModel(id);
@@ -117,7 +157,7 @@ export default function ModelSelect() {
       ) : loading ? (
         <span>loading...</span>
       ) : (
-        <>
+        <div ref={dropdownRef}>
           <button
             onClick={() => setShowSelector((v) => !v)}
             className="cursor-pointer hover:bg-hoverbg px-4 py-2 rounded-xl"
@@ -125,15 +165,16 @@ export default function ModelSelect() {
             <span>{model || 'Select model'}</span>
           </button>
 
-          {showSelector && (
-            <div className="absolute top-[100%] left-0 z-50 mt-2">
-              <ModelList
-                models={availableModels}
-                onSelect={onPick}
-              />
-            </div>
-          )}
-        </>
+          <div
+            className="absolute top-[100%] left-0 z-50 mt-2"
+            style={{ visibility: showSelector ? 'visible' : 'hidden' }}
+          >
+            <ModelList
+              models={availableModels}
+              onSelect={onPick}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
