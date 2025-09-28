@@ -5,6 +5,7 @@ import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
+import remarkMath from 'remark-math';
 import './Preview.css';
 import 'katex/dist/katex.min.css';
 import { type Content, useChatStore } from '@/app/lib/store/useChatStore';
@@ -20,15 +21,16 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
   const { currentThinkingId, status } = useChatStore();
 
   const contentText = 'text' in msg ? msg.text : '';
+  const processedText = contentText.replace(/(\$\$[\s\S]*?\$\$)/g, '\n$1\n');
 
   if (msg.type === 'text') {
     return (
       <div className="preview-content show-area">
         <ReactMarkdown
-          remarkPlugins={[remarkGfm]}
+          remarkPlugins={[remarkGfm, remarkMath]}
           rehypePlugins={[rehypeRaw, rehypeKatex]}
         >
-          {contentText}
+          {processedText}
         </ReactMarkdown>
       </div>
     );
@@ -56,10 +58,10 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
         >
           <div className="preview-content show-area p-2">
             <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
+              remarkPlugins={[remarkGfm, remarkMath]}
               rehypePlugins={[rehypeRaw, rehypeKatex]}
             >
-              {contentText}
+              {processedText}
             </ReactMarkdown>
           </div>
         </div>
