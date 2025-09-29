@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, forwardRef, useRef, useImperativeHandle, useState, memo } from 'react';
+import { useState, memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
@@ -25,14 +25,12 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
 
   if (msg.type === 'text') {
     return (
-      <div className="preview-content show-area">
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm, remarkMath]}
-          rehypePlugins={[rehypeRaw, rehypeKatex]}
-        >
-          {processedText}
-        </ReactMarkdown>
-      </div>
+      <ReactMarkdown
+        remarkPlugins={[remarkGfm, remarkMath]}
+        rehypePlugins={[rehypeRaw, rehypeKatex]}
+      >
+        {processedText}
+      </ReactMarkdown>
     );
   }
 
@@ -43,7 +41,7 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
           onClick={() => {
             setIsExpand(!isExpand);
           }}
-          className="cursor-pointer"
+          className="thinking-button"
         >
           {msg.id === currentThinkingId && status === 'streaming' ? (
             <SlideLight text={`Thinking...`} />
@@ -51,19 +49,13 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
             <span>Thought for {msg.time} s</span>
           )}
         </button>
-        <div
-          className={`transition-all duration-300 ease-in-out overflow-hidden ${
-            isExpand ? 'max-h-96' : 'max-h-0'
-          } opacity-60 text-sm leading-tight overflow-y-auto`}
-        >
-          <div className="preview-content show-area p-2">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm, remarkMath]}
-              rehypePlugins={[rehypeRaw, rehypeKatex]}
-            >
-              {processedText}
-            </ReactMarkdown>
-          </div>
+        <div className={`thinking-content ${isExpand ? 'expanded' : 'collapsed'}`}>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkMath]}
+            rehypePlugins={[rehypeRaw, rehypeKatex]}
+          >
+            {processedText}
+          </ReactMarkdown>
         </div>
       </div>
     );
@@ -74,51 +66,9 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
 
 MessageRenderer.displayName = 'MessageRenderer';
 
-const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ rawContent }, parentRef) => {
-  const localRef = useRef<HTMLDivElement>(null);
-
-  useImperativeHandle(parentRef, () => localRef.current!, []);
-
-  useEffect(() => {
-    const handleclick = (event: MouseEvent) => {
-      const target = event.target as HTMLElement;
-      if (target.classList.contains('copy-button')) {
-        if (target.textContent !== 'copy') {
-          return;
-        }
-
-        const codeToCopy = target.dataset.rawCode ?? '';
-        navigator.clipboard
-          .writeText(codeToCopy)
-          .then(() => {
-            target.textContent = '√ copied';
-            setTimeout(() => {
-              target.textContent = 'copy';
-            }, 1000);
-          })
-          .catch((err) => {
-            console.error('无法复制到剪切板', err);
-          });
-      }
-    };
-
-    const previewElement = localRef.current;
-    if (previewElement) {
-      previewElement.addEventListener('click', handleclick);
-    }
-
-    return () => {
-      if (previewElement) {
-        previewElement.removeEventListener('click', handleclick);
-      }
-    };
-  }, []);
-
+const Preview = ({ rawContent }: PreviewProps) => {
   return (
-    <div
-      ref={localRef}
-      className="h-fit w-full text-text-primary overflow-y-auto rounded-inherit"
-    >
+    <div className="preview-container">
       {rawContent.map((msg, index) => {
         return msg.type === 'text' || msg.type === 'thinking' ? (
           <MessageRenderer
@@ -134,7 +84,7 @@ const Preview = forwardRef<HTMLDivElement, PreviewProps>(({ rawContent }, parent
       })}
     </div>
   );
-});
+};
 
 Preview.displayName = 'Preview';
 

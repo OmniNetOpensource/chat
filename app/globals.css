@@ -17,7 +17,7 @@ html{
   --color-primary-rgb: 0, 0, 0;
   --color-secondary:#f0f0f0;
   --color-code-background: #f5f5f5;
-  --color-toolbar: #767676;
+  --color-toolbar: #e0e0e0;
   --color-hoverbg: #e5e5e5;
   --color-blockquote-background: #f5f5f5;
   --color-user-message-background: #f0f0f0;
@@ -33,7 +33,7 @@ html.dark {
   --color-primary-rgb: 255, 255, 255;
   --color-secondary: #1a1a1a;
   --color-code-background: #121212;
-  --color-toolbar: #a0a0a0;
+  --color-toolbar: #424242;
   --color-hoverbg: #2a2a2a;
   --color-blockquote-background: #1a1a1a;
   --color-user-message-background: #1a1a1a;
