@@ -48,6 +48,8 @@ interface UseChatStoreProps {
 
   model: string;
   setModel: (modelName: string) => void;
+  systemPrompt: string;
+  setSystemPrompt: (prompt: string) => void;
 }
 
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
@@ -267,5 +269,9 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   model: 'x-ai/grok-4-fast:free',
   setModel: (modelName) => {
     set({ model: modelName });
+  },
+  systemPrompt: '',
+  setSystemPrompt: (prompt) => {
+    set({ systemPrompt: prompt });
   },
 }));

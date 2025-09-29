@@ -6,6 +6,7 @@ import SunIcon from '../Icons/SunIcon';
 import { useTheme } from 'next-themes';
 import ModelSelect from './ModelSelect';
 import { useResponsive } from '@/app/lib/hooks/useResponsive';
+import SystemPrompt from './SystemPrompt';
 const Header = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
@@ -29,9 +30,11 @@ const Header = () => {
                         py-[3px]
                         px-4"
     >
-      <div className={`flex-1 flex ${isMobile ? 'justify-center' : 'justify-start'}`}>
+      <div className={`flex-1 flex items-center ${isMobile ? 'justify-center' : 'justify-start'}`}>
         <ModelSelect />
+        <SystemPrompt />
       </div>
+      <div></div>
       <button
         onClick={handleToggleTheme}
         className="cursor-pointer
