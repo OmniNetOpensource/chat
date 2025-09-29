@@ -26,7 +26,7 @@ export type Content = TextContent | ThinkingContent | ImageContent;
 
 export interface Message {
   role: 'user' | 'system' | 'assistant';
-  content: Content[];
+  content: Content[] ;
 }
 
 interface UseChatStoreProps {
@@ -57,7 +57,10 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   sendMessage: async (index, content) => {
     const controller = new AbortController();
     set({
-      messages: [...get().messages.slice(0, index), { role: 'user', content: content }],
+      messages: [
+        ...get().messages.slice(0, index),
+        { role: 'user', content: content },
+      ],
       status: 'streaming',
       controller: controller,
     });
@@ -65,7 +68,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     const messagesToSend = get().messages.map((msg) => {
       return {
         role: msg.role,
-        content: msg.content.filter((c) => c.type !== 'thinking'),
+        content: msg.content .filter((c) => c.type !== 'thinking'),
       };
     });
 
@@ -107,7 +110,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         },
         body: JSON.stringify({
           model: get().model,
-          messages: messagesToSend,
+          messages: [{role:'system',content:get().systemPrompt},...messagesToSend],
           stream: true,
           //preset: '',
         }),
