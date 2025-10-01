@@ -136,7 +136,7 @@ const Sidebar = () => {
     if (!isSidebarOpen) {
       // Future implementation placeholder
     }
-    router.push("/");
+    router.push("/", { scroll: false });
   };
 
   return (
@@ -149,7 +149,7 @@ const Sidebar = () => {
 
         <SidebarButton
           onClick={() => {
-            router.push("/");
+            router.push("/", { scroll: false });
             clear();
           }}
           icon={<NewChatIcon className="w-8 h-8" />}

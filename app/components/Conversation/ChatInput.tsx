@@ -34,7 +34,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     initFiles(fileContent);
   }, []);
   /* eslint-enable react-hooks/exhaustive-deps */
-  const handleSend = async () => {
+  const handleSend = () => {
     console.log('handleSend called, text:', text, 'canClick:', canClick); // 调试信息
     if (!text.trim() && files.length === 0) {
       console.log('No content to send'); // 调试信息
@@ -49,10 +49,20 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     if (editing && onFinishEdit) {
       onFinishEdit();
     }
-    const newConversationId = await sendMessage(index, contentToSend);
-    if (newConversationId) {
-      router.push(`/c/${newConversationId}`);
+
+    // 检查是否是新会话，如果是则立即生成ID并跳转
+    const store = useChatStore.getState();
+    const currentId = store.currentConversationId;
+
+    if (!currentId) {
+      // 新会话：生成ID并立即跳转
+      const newConversationId = crypto.randomUUID();
+      useChatStore.setState({ currentConversationId: newConversationId });
+      router.push(`/c/${newConversationId}`, { scroll: false });
     }
+
+    // 开始发送消息（不等待完成）
+    sendMessage(index, contentToSend);
   };
   const handleTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -82,8 +92,8 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
 
   return (
     <div
-      className={`${editing ? 'relative' : 'absolute bottom-1.5 left-1/2 transform -translate-x-1/2'} 
-      ${isMobile ? 'w-[95%]' : editing ? 'w-[60%]' : 'w-[46%]'} 
+      className={`${editing ? 'relative' : 'absolute bottom-1.5 left-1/2 transform -translate-x-1/2'}
+      ${isMobile ? 'w-[95%]' : editing ? 'w-[60%]' : 'w-[46%]'}
       ${isMobile ? 'px-1.5 py-1.5' : 'px-2 py-2'}
     bg-secondary flex flex-col gap-0 border-none
     transition-all duration-700 ease-in-out`}

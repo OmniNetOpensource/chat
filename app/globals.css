@@ -1,5 +1,8 @@
-@import "tailwindcss";
-html,body,#root{
+@import 'tailwindcss';
+@plugin "@tailwindcss/typography";
+html,
+body,
+#root {
   padding: 0;
   margin: 0;
   height: 100%;
@@ -8,14 +11,13 @@ html,body,#root{
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-
-html{
-  --color-sidebar:#ffffff;
-  --color-text-primary:#000000;
-  --color-input-box:#ffffff;
-  --color-primary:#000000;
+html {
+  --color-sidebar: #ffffff;
+  --color-text-primary: #000000;
+  --color-input-box: #ffffff;
+  --color-primary: #000000;
   --color-primary-rgb: 0, 0, 0;
-  --color-secondary:#f0f0f0;
+  --color-secondary: #f0f0f0;
   --color-code-background: #f5f5f5;
   --color-toolbar: #e0e0e0;
   --color-hoverbg: #e5e5e5;
@@ -23,6 +25,13 @@ html{
   --color-user-message-background: #f0f0f0;
   --color-chat-background: #ffffff;
   --color-popover: #f8f9fa;
+  --color-border: #e5e7eb;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-highlight: #fef08a;
+  --color-overlay: rgba(249, 250, 251, 0.5);
+  --color-modal-bg: #ffffff;
+  --color-modal-text: #000000;
 }
 
 html.dark {
@@ -39,16 +48,21 @@ html.dark {
   --color-user-message-background: #1a1a1a;
   --color-chat-background: #000000;
   --color-popover: #1a1a1a;
+  --color-border: #374151;
+  --color-danger: #ef4444;
+  --color-danger-hover: #dc2626;
+  --color-highlight: #854d0e;
+  --color-overlay: rgba(0, 0, 0, 0.5);
+  --color-modal-bg: #1a1a1a;
+  --color-modal-text: #ffffff;
 }
 
-
-
 @theme {
-  --color-sidebar:--color-sidebar;
-  --color-text-primary:--color-text-primary;
+  --color-sidebar: --color-sidebar;
+  --color-text-primary: --color-text-primary;
   --color-input-box: --color-input-box;
-  --color-primary:--color-primary;
-  --color-secondary:--color-secondary;
+  --color-primary: --color-primary;
+  --color-secondary: --color-secondary;
   --color-code-background: --color-code-background;
   --color-toolbar: --color-toolbar;
   --color-hoverbg: --color-hoverbg;
@@ -56,13 +70,20 @@ html.dark {
   --color-user-message-background: --color-user-message-background;
   --color-chat-background: --color-chat-background;
   --color-popover: --color-popover;
-  --animate-slideLight:slideLight 3s infinite;
+  --color-border: --color-border;
+  --color-danger: --color-danger;
+  --color-danger-hover: --color-danger-hover;
+  --color-highlight: --color-highlight;
+  --color-overlay: --color-overlay;
+  --color-modal-bg: --color-modal-bg;
+  --color-modal-text: --color-modal-text;
+  --animate-slideLight: slideLight 3s infinite;
   @keyframes slideLight {
     0% {
-        left: -100%;
+      left: -100%;
     }
     100% {
-        left: 100%; 
+      left: 100%;
     }
   }
 }
@@ -82,6 +103,3 @@ html.dark ::selection {
 html.dark ::-moz-selection {
   background-color: #4f2673;
 }
-
-
-

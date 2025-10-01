@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React, { useEffect, useState } from 'react';
 import Preview from '../Preview/Preview';
@@ -53,7 +53,6 @@ const MessageList: React.FC = () => {
         isMobile ? 'w-[90%]' : 'w-[46%]'
       } transition-all duration-300 ease-in-out`}
     >
-      <br />
       {messages.map((msg, index) => (
         <div
           key={index}
@@ -79,13 +78,12 @@ const MessageList: React.FC = () => {
                 onFinishEdit={() => handleFinishEdit(index)}
               />
               <button
-                className="absolute top-0 right-0 z-20 -translate-y-1/2 translate-x-1/2
-               px-2 py-1 text-sm bg-neutral-800 text-text-primary rounded-md
-                hover:bg-neutral-700
-                cursor-pointer"
+                className="absolute bottom-2 right-[48px] z-50
+                bg-primary rounded-md py-1 px-[5px] text-secondary
+                cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => handleFinishEdit(index)}
               >
-                cancle
+                cancel
               </button>
             </div>
           ) : (
@@ -99,9 +97,10 @@ const MessageList: React.FC = () => {
                     msg.role === 'user'
                       ? 'bg-user-message-background max-w-[60%] px-4 '
                       : 'bg-transparent max-w-[100%] px-4 py-2'
-                  } 
-                  rounded-[15px] h-fit flex flex-col items-center justify-center
-                  transition-all duration-300 ease-in-out`}
+                  }
+                  rounded-[15px] h-fit py-2  flex flex-col items-center 
+                  transition-all duration-300 ease-in-out
+                  `}
                 >
                   <Preview rawContent={msg.content} />
                 </div>
@@ -183,5 +182,3 @@ const MessageList: React.FC = () => {
 };
 
 export default MessageList;
-
-

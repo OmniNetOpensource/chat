@@ -28,7 +28,7 @@ const ConversationHistory = () => {
   const handleLoadConversation = async (id: string) => {
     const conversationId = await loadConversation(id);
     if (conversationId) {
-      router.push(`/c/${conversationId}`);
+      router.push(`/c/${conversationId}`, { scroll: false });
     }
   };
 

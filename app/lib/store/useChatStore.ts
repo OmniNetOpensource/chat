@@ -26,12 +26,12 @@ export type Content = TextContent | ThinkingContent | ImageContent;
 
 export interface Message {
   role: 'user' | 'system' | 'assistant';
-  content: Content[] ;
+  content: Content[];
 }
 
 interface UseChatStoreProps {
   messages: Message[];
-  sendMessage: (index: number, content: Content[]) => Promise<string | null>; // Return conversationId for new conversations
+  sendMessage: (index: number, content: Content[]) => void; // Return conversationId for new conversations
   stop: () => void;
   regenerate: (index: number) => void;
   controller: AbortController | undefined;
@@ -56,11 +56,9 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   messages: [],
   sendMessage: async (index, content) => {
     const controller = new AbortController();
+
     set({
-      messages: [
-        ...get().messages.slice(0, index),
-        { role: 'user', content: content },
-      ],
+      messages: [...get().messages.slice(0, index), { role: 'user', content: content }],
       status: 'streaming',
       controller: controller,
     });
@@ -68,39 +66,22 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     const messagesToSend = get().messages.map((msg) => {
       return {
         role: msg.role,
-        content: msg.content .filter((c) => c.type !== 'thinking'),
+        content: msg.content.filter((c) => c.type !== 'thinking'),
       };
     });
 
-    let conversationId = get().currentConversationId;
-    let isNewConversation = false;
+    const title = get()
+      .messages[0].content.filter((m) => m.type === 'text')
+      .map((m) => m.text)
+      .join('')
+      .slice(0, 10);
 
-    if (conversationId) {
-      const existing = await getConversation(conversationId);
-      if (existing) {
-        await saveConversation({
-          ...existing,
-          messages: get().messages,
-          updatedAt: Date.now(),
-        });
-      }
-    } else {
-      isNewConversation = true;
-      conversationId = crypto.randomUUID();
-      const title = get()
-        .messages[0].content.filter((m) => m.type === 'text')
-        .map((m) => m.text)
-        .join('')
-        .slice(0, 10);
-      await saveConversation({
-        id: conversationId,
-        title,
-        messages: get().messages,
-        createdAt: Date.now(),
-        updatedAt: Date.now(),
-      });
-      set({ currentConversationId: conversationId });
-    }
+    await saveConversation({
+      id: get().currentConversationId as string,
+      title,
+      messages: get().messages,
+      updatedAt: Date.now(),
+    });
 
     try {
       const response = await fetch('/api/chat', {
@@ -110,8 +91,11 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         },
         body: JSON.stringify({
           model: get().model,
-          messages: [{role:'system',content:get().systemPrompt},...messagesToSend],
+          messages: [{ role: 'system', content: get().systemPrompt }, ...messagesToSend],
           stream: true,
+          reasoning: {
+            effort: 'high',
+          },
           //preset: '',
         }),
         signal: controller.signal,
@@ -214,12 +198,10 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
           }
         }
       }
-      return isNewConversation ? conversationId : null;
     } catch (error) {
       if (!(error instanceof Error && error.name === 'AbortError')) {
         console.error('Request error:', error);
       }
-      return null;
     } finally {
       set({ status: 'ready', controller: undefined });
       const existing = await getConversation(get().currentConversationId as string);

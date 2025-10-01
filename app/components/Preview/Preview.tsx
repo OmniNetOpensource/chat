@@ -6,7 +6,6 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
-import './Preview.css';
 import 'katex/dist/katex.min.css';
 import { type Content, useChatStore } from '@/app/lib/store/useChatStore';
 import SlideLight from '../SlideLight/SlideLight';
@@ -41,7 +40,7 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
           onClick={() => {
             setIsExpand(!isExpand);
           }}
-          className="thinking-button"
+          className="cursor-pointer"
         >
           {msg.id === currentThinkingId && status === 'streaming' ? (
             <SlideLight text={`Thinking...`} />
@@ -49,7 +48,9 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
             <span>Thought for {msg.time} s</span>
           )}
         </button>
-        <div className={`thinking-content ${isExpand ? 'expanded' : 'collapsed'}`}>
+        <div
+          className={`text-sm opacity-50 ${isExpand ? 'h-fit max-h-80 overflow-y-auto ' : 'max-h-0 overflow-y-hidden'}`}
+        >
           <ReactMarkdown
             remarkPlugins={[remarkGfm, remarkMath]}
             rehypePlugins={[rehypeRaw, rehypeKatex]}
@@ -68,7 +69,7 @@ MessageRenderer.displayName = 'MessageRenderer';
 
 const Preview = ({ rawContent }: PreviewProps) => {
   return (
-    <div className="preview-container">
+    <div className="prose dark:prose-invert max-w-none">
       {rawContent.map((msg, index) => {
         return msg.type === 'text' || msg.type === 'thinking' ? (
           <MessageRenderer
