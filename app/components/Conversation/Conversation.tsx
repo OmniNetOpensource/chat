@@ -3,8 +3,10 @@
 import React from 'react';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
+import { useChatStore } from '@/app/lib/store/useChatStore';
 
 const Conversation: React.FC = () => {
+  const { messages } = useChatStore();
 
   return (
     <div className="relative flex-1 min-h-0">
@@ -17,7 +19,7 @@ const Conversation: React.FC = () => {
       </div>
 
       <ChatInput
-        index={999}
+        index={messages.length}
         fileContent={[]}
         textContent=""
       />

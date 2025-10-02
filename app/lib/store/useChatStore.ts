@@ -212,6 +212,8 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
           ...existing,
           messages: get().messages,
           updatedAt: Date.now(),
+          model: get().model,
+          systemPrompt: get().systemPrompt,
         });
       }
     }
