@@ -50,7 +50,7 @@ const MessageList: React.FC = () => {
   return (
     <div
       className={`mx-auto flex flex-col ${
-        isMobile ? 'w-[90%]' : 'w-[46%]'
+        isMobile ? 'w-[90%]' : 'w-[60%]'
       } transition-all duration-300 ease-in-out`}
     >
       {messages.map((msg, index) => (

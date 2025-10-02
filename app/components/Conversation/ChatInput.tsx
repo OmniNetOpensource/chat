@@ -93,7 +93,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   return (
     <div
       className={`${editing ? 'relative' : 'absolute bottom-1.5 left-1/2 transform -translate-x-1/2'}
-      ${isMobile ? 'w-[95%]' : editing ? 'w-[60%]' : 'w-[46%]'}
+      ${isMobile ? 'w-[95%]' : 'w-[60%]'}
       ${isMobile ? 'px-1.5 py-1.5' : 'px-2 py-2'}
     bg-secondary flex flex-col gap-0 border-none
     transition-all duration-700 ease-in-out`}
