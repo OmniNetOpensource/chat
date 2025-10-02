@@ -104,6 +104,11 @@ html.dark ::-moz-selection {
   background-color: #4f2673;
 }
 
+.prose {
+  max-width: 100%;
+  min-width: 0;
+  overflow-wrap: break-word;
+}
 /* Inline code styling for prose */
 .prose code {
   background-color: var(--color-code-background);
@@ -120,11 +125,18 @@ html.dark ::-moz-selection {
   content: none;
 }
 
-/* Pre code blocks styling */
 .prose pre {
   background-color: var(--color-code-background);
   border: 1px solid var(--color-border);
   color: var(--color-text-primary);
+
+  /* 关键补充： */
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+  white-space: pre; /* 维持不换行、内部横向滚动 */
+  contain: inline-size; /*  隔离最小内容宽度对外层的反作用（可选但很稳） */
+  /* 你的 min-width:0 可移除，这里不需要 */
 }
 
 .prose pre code {
@@ -132,5 +144,5 @@ html.dark ::-moz-selection {
   padding: 0;
   border-radius: 0;
   color: inherit;
-  
+  white-space: inherit; /* 和 pre 同步，避免子元素另起规则 */
 }
