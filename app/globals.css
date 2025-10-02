@@ -12,48 +12,48 @@ body,
 @custom-variant dark (&:where(.dark, .dark *));
 
 html {
-  --color-sidebar: #ffffff;
+  --color-sidebar: #f5f5f5;
   --color-text-primary: #000000;
-  --color-input-box: #ffffff;
+  --color-input-box: #eeeeee;
   --color-primary: #000000;
   --color-primary-rgb: 0, 0, 0;
-  --color-secondary: #f0f0f0;
-  --color-code-background: #f5f5f5;
-  --color-toolbar: #e0e0e0;
-  --color-hoverbg: #e5e5e5;
-  --color-blockquote-background: #f5f5f5;
-  --color-user-message-background: #f0f0f0;
+  --color-secondary: #e5e5e5;
+  --color-code-background: #dedede;
+  --color-toolbar: #c8c8c8;
+  --color-hoverbg: #d8d8d8;
+  --color-blockquote-background: #ececec;
+  --color-user-message-background: #f1efef;
   --color-chat-background: #ffffff;
-  --color-popover: #f8f9fa;
-  --color-border: #e5e7eb;
+  --color-popover: #eeeeee;
+  --color-border: #bababa;
   --color-danger: #ef4444;
   --color-danger-hover: #dc2626;
   --color-highlight: #fef08a;
   --color-overlay: rgba(249, 250, 251, 0.5);
-  --color-modal-bg: #ffffff;
+  --color-modal-bg: #f5f5f5;
   --color-modal-text: #000000;
 }
 
 html.dark {
-  --color-sidebar: #000000;
+  --color-sidebar: #0f0f0f;
   --color-text-primary: #ffffff;
-  --color-input-box: #1a1a1a;
+  --color-input-box: #282828;
   --color-primary: #ffffff;
   --color-primary-rgb: 255, 255, 255;
   --color-secondary: #1a1a1a;
-  --color-code-background: #121212;
-  --color-toolbar: #424242;
-  --color-hoverbg: #2a2a2a;
-  --color-blockquote-background: #1a1a1a;
-  --color-user-message-background: #1a1a1a;
+  --color-code-background: #262525;
+  --color-toolbar: #353535;
+  --color-hoverbg: #333333;
+  --color-blockquote-background: #1d1d1d;
+  --color-user-message-background: #2e2e2e;
   --color-chat-background: #000000;
-  --color-popover: #1a1a1a;
-  --color-border: #374151;
+  --color-popover: #242424;
+  --color-border: #4a4a4a;
   --color-danger: #ef4444;
   --color-danger-hover: #dc2626;
   --color-highlight: #854d0e;
   --color-overlay: rgba(0, 0, 0, 0.5);
-  --color-modal-bg: #1a1a1a;
+  --color-modal-bg: #242424;
   --color-modal-text: #ffffff;
 }
 
@@ -102,4 +102,35 @@ html.dark ::selection {
 
 html.dark ::-moz-selection {
   background-color: #4f2673;
+}
+
+/* Inline code styling for prose */
+.prose code {
+  background-color: var(--color-code-background);
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+  font-size: 0.875em;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  vertical-align: 0.06rem;
+}
+
+.prose code::before,
+.prose code::after {
+  content: none;
+}
+
+/* Pre code blocks styling */
+.prose pre {
+  background-color: var(--color-code-background);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+}
+
+.prose pre code {
+  background-color: transparent;
+  padding: 0;
+  border-radius: 0;
+  color: inherit;
+  
 }

@@ -10,14 +10,12 @@ export default function ChatPage() {
   const { loadConversation } = useChatStore();
   const params = useParams();
   const conversationId = params.id as string;
-  /* eslint-disable react-hooks/exhaustive-deps */
 
   useEffect(() => {
     if (conversationId) {
       loadConversation(conversationId);
     }
-  }, []);
-  /* eslint-disable react-hooks/exhaustive-deps */
+  }, [conversationId]);
 
   return (
     <div className="flex h-screen w-screen flex-row">

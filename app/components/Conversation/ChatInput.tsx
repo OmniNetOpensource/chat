@@ -58,7 +58,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
       // 新会话：生成ID并立即跳转
       const newConversationId = crypto.randomUUID();
       useChatStore.setState({ currentConversationId: newConversationId });
-      router.push(`/c/${newConversationId}`, { scroll: false });
+      router.push(`/c/${newConversationId}`);
     }
 
     // 开始发送消息（不等待完成）

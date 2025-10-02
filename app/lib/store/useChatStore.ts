@@ -81,6 +81,8 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       title,
       messages: get().messages,
       updatedAt: Date.now(),
+      model: get().model,
+      systemPrompt: get().systemPrompt,
     });
 
     try {
@@ -247,7 +249,12 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       return null;
     }
     const currentConversation = await getConversation(id);
-    set({ messages: currentConversation.messages, currentConversationId: currentConversation.id });
+    set({
+      messages: currentConversation.messages,
+      currentConversationId: currentConversation.id,
+      model: currentConversation.model || 'x-ai/grok-4-fast:free',
+      systemPrompt: currentConversation.systemPrompt,
+    });
     return currentConversation.id;
   },
   error: null,

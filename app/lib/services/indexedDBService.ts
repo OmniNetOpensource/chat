@@ -11,6 +11,8 @@ export interface ConversationRecord {
   title: string;
   messages: Message[];
   updatedAt: number;
+  systemPrompt:string;
+  model:string;
 }
 
 async function openDatabase(): Promise<IDBPDatabase> {

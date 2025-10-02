@@ -69,7 +69,7 @@ MessageRenderer.displayName = 'MessageRenderer';
 
 const Preview = ({ rawContent }: PreviewProps) => {
   return (
-    <div className="prose dark:prose-invert max-w-none">
+    <div className="prose dark:prose-invert">
       {rawContent.map((msg, index) => {
         return msg.type === 'text' || msg.type === 'thinking' ? (
           <MessageRenderer

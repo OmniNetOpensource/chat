@@ -108,9 +108,8 @@ export default function ModelSelect() {
   const [error, setError] = useState<string>('');
   const [showSelector, setShowSelector] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  /* eslint-disable react-hooks/exhaustive-deps */
 
-  useEffect(() => {
+  const handleModelSelectClick = () => {
     (async () => {
       try {
         const res = await fetch('/api/models', { cache: 'no-cache' });
@@ -124,7 +123,11 @@ export default function ModelSelect() {
         setLoading(false);
       }
     })();
+    setShowSelector(!showSelector);
+  };
 
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
     const currentModel = localStorage.getItem('model');
     if (currentModel) setModel(currentModel);
   }, []);
@@ -148,38 +151,39 @@ export default function ModelSelect() {
 
   const onPick = (id: string) => {
     setModel(id);
-    try {
-      localStorage.setItem('model', id);
-    } catch {}
     setShowSelector(false);
   };
 
+  useEffect(()=>{
+    localStorage.setItem('model',model);
+  },[model]);
+  
   return (
     <div className="relative h-fit w-fit">
-      {error ? (
-        <span className="text-red-500">error</span>
-      ) : loading ? (
-        <span>loading...</span>
-      ) : (
-        <div ref={dropdownRef}>
-          <button
-            onClick={() => setShowSelector((v) => !v)}
-            className="cursor-pointer hover:bg-hoverbg px-4 py-2 rounded-xl"
-          >
-            <span>{model || 'Select model'}</span>
-          </button>
+      <div ref={dropdownRef}>
+        <button
+          onClick={handleModelSelectClick}
+          className="cursor-pointer hover:bg-hoverbg px-4 py-2 rounded-xl"
+        >
+          <span>{model}</span>
+        </button>
 
-          <div
-            className="absolute top-[100%] left-0 z-50 mt-2"
-            style={{ visibility: showSelector ? 'visible' : 'hidden' }}
-          >
+        <div
+          className="absolute top-[100%] left-0 z-50 mt-2"
+          style={{ visibility: showSelector ? 'visible' : 'hidden' }}
+        >
+          {error ? (
+            <div className="bg-secondary text-red-500">error</div>
+          ) : loading ? (
+            <div className="bg-secondary">loading...</div>
+          ) : (
             <ModelList
               models={availableModels}
               onSelect={onPick}
             />
-          </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
