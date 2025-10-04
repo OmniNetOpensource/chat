@@ -19,7 +19,7 @@ interface ChatInputProps {
 }
 
 const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: ChatInputProps) => {
-  const { files, initFiles, removeFiles, addFiles } = useFileUpload();
+  const { files, removeFiles, addFiles } = useFileUpload({ initialFiles: fileContent });
   const router = useRouter();
   const { isMobile } = useResponsive();
   const { status, sendMessage } = useChatStore();
@@ -28,12 +28,8 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     setCanClick(text.trim().length > 0 || files.length > 0 || status === 'streaming');
-  }, [text, files, status]);
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    initFiles(fileContent);
-  }, []);
-  /* eslint-enable react-hooks/exhaustive-deps */
+  }, [text, files.length, status]);
+
   const handleSend = () => {
     console.log('handleSend called, text:', text, 'canClick:', canClick); // 调试信息
     if (!text.trim() && files.length === 0) {
@@ -45,7 +41,6 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     contentToSend = files.map((file) => ({ type: 'image_url', image_url: { url: file.base64 } }));
     contentToSend.push({ type: 'text', text: text });
     setText('');
-    initFiles([]);
     if (editing && onFinishEdit) {
       onFinishEdit();
     }
@@ -88,6 +83,11 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const items = e.clipboardData.items;
+    const imageFiles: File[] = [];
   };
 
   return (

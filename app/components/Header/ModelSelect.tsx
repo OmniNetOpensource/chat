@@ -131,7 +131,6 @@ export default function ModelSelect() {
     const currentModel = localStorage.getItem('model');
     if (currentModel) setModel(currentModel);
   }, []);
-  /* eslint-disable react-hooks/exhaustive-deps */
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -154,10 +153,10 @@ export default function ModelSelect() {
     setShowSelector(false);
   };
 
-  useEffect(()=>{
-    localStorage.setItem('model',model);
-  },[model]);
-  
+  useEffect(() => {
+    localStorage.setItem('model', model);
+  }, [model]);
+
   return (
     <div className="relative h-fit w-fit">
       <div ref={dropdownRef}>

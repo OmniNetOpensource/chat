@@ -15,7 +15,7 @@ export default function ChatPage() {
     if (conversationId) {
       loadConversation(conversationId);
     }
-  }, [conversationId]);
+  }, [conversationId, loadConversation]);
 
   return (
     <div className="flex h-screen w-screen flex-row">

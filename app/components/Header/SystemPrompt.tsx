@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SystemPromptIcon from '../Icons/SystemPromptIcon'; // 1. 导入新图标
 import { useChatStore } from '@/app/lib/store/useChatStore';
 const SystemPrompt = () => {
@@ -7,6 +7,15 @@ const SystemPrompt = () => {
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setSystemPrompt(e.target.value);
   };
+
+  useEffect(() => {
+    const savedSystemPrompt = localStorage.getItem('systemprompt') || '';
+    setSystemPrompt(savedSystemPrompt);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('systemprompt', systemPrompt);
+  }, [systemPrompt]);
 
   return (
     <>
