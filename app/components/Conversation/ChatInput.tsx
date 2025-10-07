@@ -22,7 +22,8 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   const { files, removeFiles, addFiles } = useFileUpload({ initialFiles: fileContent });
   const router = useRouter();
   const { isMobile } = useResponsive();
-  const { status, sendMessage } = useChatStore();
+  const { status, sendMessage, stop, setCurrentConversationId, currentConversationId } =
+    useChatStore();
   const [text, setText] = useState<string>(textContent);
   const [canClick, setCanClick] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -31,9 +32,9 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   }, [text, files.length, status]);
 
   const handleSend = () => {
-    console.log('handleSend called, text:', text, 'canClick:', canClick); // 调试信息
+    //console.log('handleSend called, text:', text, 'canClick:', canClick); // 调试信息
     if (!text.trim() && files.length === 0) {
-      console.log('No content to send'); // 调试信息
+      //console.log('No content to send'); // 调试信息
       return;
     }
 
@@ -45,14 +46,10 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
       onFinishEdit();
     }
 
-    // 检查是否是新会话，如果是则立即生成ID并跳转
-    const store = useChatStore.getState();
-    const currentId = store.currentConversationId;
-
-    if (!currentId) {
+    if (!currentConversationId) {
       // 新会话：生成ID并立即跳转
       const newConversationId = crypto.randomUUID();
-      useChatStore.setState({ currentConversationId: newConversationId });
+      setCurrentConversationId(newConversationId);
       router.push(`/c/${newConversationId}`);
     }
 

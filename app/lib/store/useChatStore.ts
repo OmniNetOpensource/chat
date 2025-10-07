@@ -44,6 +44,7 @@ interface UseChatStoreProps {
   error: string | null;
 
   currentConversationId: string | null;
+  setCurrentConversationId:(id:string) => void;
   loadConversation: (id: string) => Promise<string | null>; // Return conversationId
 
   model: string;
@@ -268,4 +269,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   setSystemPrompt: (prompt) => {
     set({ systemPrompt: prompt });
   },
+  setCurrentConversationId:(id)=>{
+    set({currentConversationId:id})
+  }
 }));
