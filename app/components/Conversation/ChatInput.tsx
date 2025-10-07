@@ -19,7 +19,9 @@ interface ChatInputProps {
 }
 
 const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: ChatInputProps) => {
-  const { files, removeFiles, addFiles } = useFileUpload({ initialFiles: fileContent });
+  const { files, removeFiles, addFilesFromInput, addFilesFromPaste } = useFileUpload({
+    initialFiles: fileContent,
+  });
   const router = useRouter();
   const { isMobile } = useResponsive();
   const { status, sendMessage, stop, setCurrentConversationId, currentConversationId } =
@@ -83,8 +85,15 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   };
 
   const handlePaste = (e: React.ClipboardEvent<HTMLTextAreaElement>) => {
-    const items = e.clipboardData.items;
-    const imageFiles: File[] = [];
+    const items = e.clipboardData.files;
+
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+
+      if (item.type.startsWith('image/')) {
+        addFilesFromPaste(item);
+      }
+    }
   };
 
   return (
@@ -126,6 +135,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
           console.log('Any key pressed:', e.key, 'in textarea');
           handleKeyDown(e);
         }}
+        onPaste={handlePaste}
         style={{ height: '24px' }}
       />
       <div className="my-0 mx-0 w-full h-[32px] flex flex-row gap-1 justify-between items-center">
@@ -143,7 +153,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
           type="file"
           accept="image/*"
           className="hidden"
-          onChange={addFiles}
+          onChange={addFilesFromInput}
         />
         <button
           className={`bg-primary ${

@@ -31,7 +31,7 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
     setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
   };
 
-  const addFiles = async (event: ChangeEvent<HTMLInputElement>) => {
+  const addFilesFromInput = async (event: ChangeEvent<HTMLInputElement>) => {
     const filesToAdd = event.target.files;
     if (!filesToAdd) {
       return;
@@ -54,5 +54,18 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
     }
   };
 
-  return { files, removeFiles, addFiles };
+  const addFilesFromPaste = async (file: File) => {
+    try {
+      const base64 = await readFileAsBase64(file);
+      const newFile = {
+        id: crypto.randomUUID(),
+        base64: base64,
+      };
+      setFiles((prevFiles) => [...prevFiles, newFile]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  return { files, removeFiles, addFilesFromInput, addFilesFromPaste };
 };
