@@ -78,7 +78,7 @@ const MessageList: React.FC = () => {
                 onFinishEdit={() => handleFinishEdit(index)}
               />
               <button
-                className="absolute bottom-2 right-[48px] z-50
+                className="absolute bottom-2 right-[48px] z-floating-button
                 bg-primary rounded-md py-1 px-[5px] text-secondary
                 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={() => handleFinishEdit(index)}

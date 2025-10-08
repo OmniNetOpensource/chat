@@ -1,11 +1,5 @@
-import Sidebar from "./Sidebar";
-import SidebarButton from "./SidebarButton";
-import ConversationHistory from "./ConversationHistory";
+import Sidebar from './Sidebar';
 
-export {
-  Sidebar,
-  SidebarButton,
-  ConversationHistory
-};
+export { Sidebar };
 
 export default Sidebar;

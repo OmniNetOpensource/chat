@@ -86,6 +86,32 @@ html.dark {
       left: 100%;
     }
   }
+  
+  /* Z-Index Scale - Modern incremental approach */
+  --z-index-base: 0;
+  --z-index-behind: -1;
+  
+  /* UI Elements (100-300) */
+  --z-index-sidebar-overlay: 100;
+  --z-index-sidebar-toggle: 200;
+  
+  /* Dropdowns & Popovers (400-500) */
+  --z-index-dropdown: 400;
+  --z-index-popover: 500;
+  
+  /* Floating UI (600-700) */
+  --z-index-floating-button: 600;
+  
+  /* Overlays (800-900) */
+  --z-index-overlay: 800;
+  --z-index-sidebar: 900;
+  
+  /* Modals (1000+) */
+  --z-index-modal: 1000;
+  
+  /* Tooltips & Notifications (1100+) */
+  --z-index-tooltip: 1100;
+  --z-index-notification: 1200;
 }
 
 ::selection {
@@ -102,6 +128,48 @@ html.dark ::selection {
 
 html.dark ::-moz-selection {
   background-color: #4f2673;
+}
+
+@layer utilities {
+  .z-sidebar-overlay {
+    z-index: 100;
+  }
+  
+  .z-sidebar-toggle {
+    z-index: 200;
+  }
+  
+  .z-dropdown {
+    z-index: 400;
+  }
+  
+  .z-popover {
+    z-index: 500;
+  }
+  
+  .z-floating-button {
+    z-index: 600;
+  }
+  
+  .z-overlay {
+    z-index: 800;
+  }
+  
+  .z-sidebar {
+    z-index: 900;
+  }
+  
+  .z-modal {
+    z-index: 1000;
+  }
+  
+  .z-tooltip {
+    z-index: 1100;
+  }
+  
+  .z-notification {
+    z-index: 1200;
+  }
 }
 
 .prose {

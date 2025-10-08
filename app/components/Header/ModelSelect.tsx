@@ -168,7 +168,7 @@ export default function ModelSelect() {
         </button>
 
         <div
-          className="absolute top-[100%] left-0 z-50 mt-2"
+          className="absolute top-[100%] left-0 z-dropdown mt-2"
           style={{ visibility: showSelector ? 'visible' : 'hidden' }}
         >
           {error ? (

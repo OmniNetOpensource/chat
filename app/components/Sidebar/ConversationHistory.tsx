@@ -1,4 +1,4 @@
-import { getAllConversations, type ConversationRecord } from '@/app/lib/services/indexedDBService'
+import { getAllConversations, type ConversationRecord } from '@/app/lib/services/indexedDBService';
 import { useChatStore } from '@/app/lib/store/useChatStore';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -57,11 +57,11 @@ const ConversationHistory = () => {
 
             return (
               <Link
-                href={conversation.id}
+                href={`/c/${conversation.id}`}
                 key={conversation.id}
                 data-index={item.index}
                 ref={virtualizer.measureElement}
-                className="h-fit w-full py-2 hover:bg-hoverbg rounded-xl flex flex-col items-center justify-center cursor-pointer"
+                className="h-fit w-full py-2 px-3 hover:bg-hoverbg rounded-xl flex flex-col items-left justify-center cursor-pointer"
               >
                 <span className="">{conversation.title}</span>
               </Link>

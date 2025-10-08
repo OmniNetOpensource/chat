@@ -20,8 +20,21 @@ const NewChatIcon: React.FC<Props> = ({ className, width = 24, height = 24 }) =>
       strokeLinejoin="round"
       className={`text-primary ${className}`}
     >
-      {/* 极简聊天气泡 */}
-      <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      {/* Squared chat bubble with rounded corners */}
+      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+      {/* Plus sign centered */}
+      <line
+        x1="12"
+        y1="7.5"
+        x2="12"
+        y2="12.5"
+      />
+      <line
+        x1="9.5"
+        y1="10"
+        x2="14.5"
+        y2="10"
+      />
     </svg>
   );
 };
