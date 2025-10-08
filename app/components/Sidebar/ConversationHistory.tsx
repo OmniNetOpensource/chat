@@ -3,6 +3,7 @@ import { useChatStore } from '@/app/lib/store/useChatStore';
 import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useVirtualizer } from '@tanstack/react-virtual';
+import Link from 'next/link';
 
 const ConversationHistory = () => {
   const [conversationHistories, setConversationHistories] = useState<ConversationRecord[]>([]);
@@ -24,10 +25,6 @@ const ConversationHistory = () => {
 
     loadConversationsHistories();
   }, [status]);
-
-  const handleLoadConversation = async (id: string) => {
-      router.push(`/c/${id}`);
-  };
 
   return (
     <div
@@ -59,15 +56,15 @@ const ConversationHistory = () => {
             }
 
             return (
-              <div
+              <Link
+                href={conversation.id}
                 key={conversation.id}
                 data-index={item.index}
                 ref={virtualizer.measureElement}
                 className="h-fit w-full py-2 hover:bg-hoverbg rounded-xl flex flex-col items-center justify-center cursor-pointer"
-                onClick={() => handleLoadConversation(conversation.id)}
               >
                 <span className="">{conversation.title}</span>
-              </div>
+              </Link>
             );
           })}
         </div>
