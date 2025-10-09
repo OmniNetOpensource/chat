@@ -10,10 +10,5 @@ export default function HomePage() {
   useEffect(() => {
     clear();
   }, []);
-  return (
-    <div className="flex h-screen w-screen flex-row items-stretch">
-      <Sidebar />
-      <Main />
-    </div>
-  );
+  return <Main />;
 }

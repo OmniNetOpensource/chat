@@ -1,7 +1,7 @@
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
 import { ResponsiveProvider } from './components/Responsive/ResponsiveProvider';
-
+import Sidebar from './components/Sidebar';
 
 export const metadata = {
   title: 'AI studio',
@@ -9,13 +9,9 @@ export const metadata = {
   icons: {
     icon: '/chat.png',
   },
-}
+};
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html
       lang="en"
@@ -29,7 +25,12 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <ResponsiveProvider>{children}</ResponsiveProvider>
+          <ResponsiveProvider>
+            <div className="flex h-screen w-screen flex-row items-stretch">
+              <Sidebar />
+              {children}
+            </div>
+          </ResponsiveProvider>
         </ThemeProvider>
       </body>
     </html>
