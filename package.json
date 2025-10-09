@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
-  "packageManager": "pnpm@10.17.1",
+  "packageManager": "pnpm@10.18.1",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
@@ -20,6 +20,7 @@
     "@tailwindcss/postcss": "^4.1.11",
     "@tanstack/react-virtual": "^3.13.12",
     "ai": "^5.0.12",
+    "chat": "link:",
     "dompurify": "^3.2.6",
     "highlight.js": "^11.11.1",
     "idb": "^8.0.3",
