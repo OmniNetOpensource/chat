@@ -26,6 +26,9 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
   const [files, setFiles] = useState<fileType[]>(
     () => initialFiles?.map((file_url) => ({ id: crypto.randomUUID(), base64: file_url })) || [],
   );
+  const clearFiles = () => {
+    setFiles([]);
+  };
 
   const removeFiles = (id: string) => {
     setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
@@ -67,5 +70,5 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
     }
   };
 
-  return { files, removeFiles, addFilesFromInput, addFilesFromPaste };
+  return { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles };
 };

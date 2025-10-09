@@ -21,5 +21,4 @@ const CheckIcon: React.FC<CheckIconProps> = ({ width = 24, height = 24 }) => {
     </svg>
   );
 };
-
-export default CheckIcon; 
+export default CheckIcon;

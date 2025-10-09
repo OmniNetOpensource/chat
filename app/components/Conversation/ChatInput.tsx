@@ -19,7 +19,7 @@ interface ChatInputProps {
 }
 
 const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: ChatInputProps) => {
-  const { files, removeFiles, addFilesFromInput, addFilesFromPaste } = useFileUpload({
+  const { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles } = useFileUpload({
     initialFiles: fileContent,
   });
   const router = useRouter();
@@ -44,6 +44,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     contentToSend = files.map((file) => ({ type: 'image_url', image_url: { url: file.base64 } }));
     contentToSend.push({ type: 'text', text: text });
     setText('');
+    clearFiles();
     if (editing && onFinishEdit) {
       onFinishEdit();
     }

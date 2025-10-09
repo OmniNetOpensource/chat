@@ -26,7 +26,7 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
     return (
       <ReactMarkdown
         remarkPlugins={[remarkGfm, remarkMath]}
-        rehypePlugins={[rehypeRaw, rehypeKatex]}
+        rehypePlugins={[rehypeKatex]}
       >
         {processedText}
       </ReactMarkdown>
@@ -53,7 +53,7 @@ const MessageRenderer = memo(({ msg }: { msg: Content }) => {
         >
           <ReactMarkdown
             remarkPlugins={[remarkGfm, remarkMath]}
-            rehypePlugins={[rehypeRaw, rehypeKatex]}
+            rehypePlugins={[rehypeKatex]}
           >
             {processedText}
           </ReactMarkdown>

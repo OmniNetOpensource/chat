@@ -31,5 +31,4 @@ const CopyIcon = ({ width = 24, height = 24 }: Props) => {
     </svg>
   );
 };
-
-export default CopyIcon; 
+export default CopyIcon;

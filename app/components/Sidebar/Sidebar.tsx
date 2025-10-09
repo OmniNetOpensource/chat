@@ -92,16 +92,16 @@ const Sidebar = () => {
           <SidebarMenu />
           {isSidebarOpen && <ConversationHistory />}
         </nav>
-        
+
         {/* Settings Button at Bottom */}
         <div className="w-full px-1.5 pb-2">
           <button
             onClick={() => setIsSettingsOpen(true)}
-            className="w-full hover:bg-hoverbg bg-transparent flex flex-row items-center gap-2 rounded-md py-2"
+            className="w-full hover:bg-hoverbg bg-transparent flex flex-row items-center gap-2 rounded-md whitespace-nowrap overflow-hidden"
             aria-label="Open settings"
           >
             <SettingsIcon
-              className="flex-shrink-0 ml-2"
+              className="ml-2"
               width={20}
               height={20}
             />
@@ -117,9 +117,12 @@ const Sidebar = () => {
           </button>
         </div>
       </div>
-      
+
       {/* Settings Modal */}
-      <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
+      <Settings
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+      />
     </>
   );
 };
