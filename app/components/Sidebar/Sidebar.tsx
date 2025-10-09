@@ -1,12 +1,14 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { ReactNode } from 'react';
+import { useState } from 'react';
 import { useSidebarState } from '@/app/lib/store/useSidebarState';
 import { useResponsive } from '@/app/lib/hooks/useResponsive';
 
 import ConversationHistory from './ConversationHistory';
 import SidebarMenu from './SidebarMenu';
+import Settings from '../Settings/Settings';
+import SettingsIcon from '../Icons/SettingsIcon';
+
 interface SidebarOverlayProps {
   onClick: (e: React.MouseEvent) => void;
 }
@@ -64,7 +66,7 @@ const SidebarToggle = ({ isSidebarOpen, isMobile, onClick }: SidebarToggleProps)
 const Sidebar = () => {
   const { isSidebarOpen, setSidebar } = useSidebarState();
   const { isMobile } = useResponsive();
-  const router = useRouter();
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const handleToggleSidebar = (e: React.MouseEvent) => {
     if (e.target === e.currentTarget) {
@@ -90,7 +92,34 @@ const Sidebar = () => {
           <SidebarMenu />
           {isSidebarOpen && <ConversationHistory />}
         </nav>
+        
+        {/* Settings Button at Bottom */}
+        <div className="w-full px-1.5 pb-2">
+          <button
+            onClick={() => setIsSettingsOpen(true)}
+            className="w-full hover:bg-hoverbg bg-transparent flex flex-row items-center gap-2 rounded-md py-2"
+            aria-label="Open settings"
+          >
+            <SettingsIcon
+              className="flex-shrink-0 ml-2"
+              width={20}
+              height={20}
+            />
+            {isSidebarOpen && (
+              <span
+                className={`transition-all duration-300 ease-in-out ${
+                  isSidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'
+                }`}
+              >
+                Settings
+              </span>
+            )}
+          </button>
+        </div>
       </div>
+      
+      {/* Settings Modal */}
+      <Settings isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 };

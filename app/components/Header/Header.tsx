@@ -1,27 +1,13 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import MoonIcon from '../Icons/MoonIcon';
-import SunIcon from '../Icons/SunIcon';
-import { useTheme } from 'next-themes';
+import Link from 'next/link';
+import NewChatIcon from '../Icons/NewChatIcon';
 import ModelSelect from './ModelSelect';
 import { useResponsive } from '@/app/lib/hooks/useResponsive';
 import SystemPrompt from './SystemPrompt';
-const Header = () => {
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const { isMobile } = useResponsive();
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
-  const handleToggleTheme = () => {
-    if (theme === 'light') {
-      setTheme('dark');
-    } else {
-      setTheme('light');
-    }
-  };
+const Header = () => {
+  const { isMobile } = useResponsive();
 
   return (
     <div
@@ -35,16 +21,17 @@ const Header = () => {
         <SystemPrompt />
       </div>
       <div></div>
-      <button
-        onClick={handleToggleTheme}
+      <Link
+        href="/"
         className="cursor-pointer
                             hover:bg-hoverbg
                             rounded-md
                             w-[40px] h-[40px]
                             flex justify-center items-center"
+        aria-label="New chat"
       >
-        {mounted === true && theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-      </button>
+        <NewChatIcon width={24} height={24} />
+      </Link>
     </div>
   );
 };
