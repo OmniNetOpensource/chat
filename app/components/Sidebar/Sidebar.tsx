@@ -31,7 +31,7 @@ interface SidebarToggleProps {
 const SidebarToggle = ({ isSidebarOpen, isMobile, onClick }: SidebarToggleProps) => (
   <button
     onClick={onClick}
-    className={`absolute top-1.5 ${isSidebarOpen ? (isMobile ? 'left-26' : 'left-30') : 'left-1.5'} 
+    className={`absolute top-1.5 ${isSidebarOpen ? (isMobile ? 'left-28' : 'left-30') : 'left-1.5'} 
       flex flex-col justify-center items-center
       cursor-pointer
       bg-transparent hover:bg-hoverbg
@@ -39,7 +39,7 @@ const SidebarToggle = ({ isSidebarOpen, isMobile, onClick }: SidebarToggleProps)
       border-none
       transition-all duration-300 ease-in-out
       
-      }
+      
     `}
   >
     <span

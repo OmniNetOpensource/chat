@@ -54,6 +54,8 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
       setFiles((prevFiles) => [...prevFiles, ...newFiles]);
     } catch (error) {
       console.log(error);
+    } finally {
+      event.target.value = '';
     }
   };
 

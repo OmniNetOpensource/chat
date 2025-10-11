@@ -23,17 +23,10 @@ const MessageList: React.FC = () => {
   };
 
   const handleStartEdit = (index: number) => {
-    setEditing(() => {
-      const next = editing.map((value, arrayIndex) => (arrayIndex === index ? !value : value));
-      console.log(next);
-      return next;
-    });
+    setEditing((prev) => prev.map((value, arrayIndex) => (arrayIndex === index ? !value : value)));
   };
   const handleFinishEdit = (index: number) => {
-    setEditing(() => {
-      const next = editing.map((value, arrayIndex) => (arrayIndex === index ? !value : value));
-      return next;
-    });
+    setEditing((prev) => prev.map((value, arrayIndex) => (arrayIndex === index ? !value : value)));
   };
 
   useEffect(() => {
@@ -61,7 +54,7 @@ const MessageList: React.FC = () => {
         >
           {editing[index] === true ? (
             <div
-              className={`w-full flex ${msg.role === 'user' ? 'justify-end' : 'justify-star'} relative`}
+              className={`w-full flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} relative`}
             >
               <ChatInput
                 index={index}
@@ -89,7 +82,7 @@ const MessageList: React.FC = () => {
           ) : (
             <>
               <div
-                className={`w-full flex ${msg.role === 'user' ? 'justify-end' : 'justify-star'}`}
+                className={`w-full flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 <div
                   className={`w-fit
@@ -120,7 +113,7 @@ const MessageList: React.FC = () => {
                     } transition-all duration-300 ease-in-out hover:bg-hoverbg rounded-md flex justify-center items-center cursor-pointer`}
                     onClick={() =>
                       handleCopy(
-                        msg.content.map((m) => (m.type === 'text' ? m.text : '')).join(),
+                        msg.content.map((m) => (m.type === 'text' ? m.text : '')).join(''),
                         index,
                       )
                     }

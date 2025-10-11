@@ -110,6 +110,18 @@ export default function ModelSelect() {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const handleModelSelectClick = () => {
+    setShowSelector(!showSelector);
+  };
+
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    const currentModel = localStorage.getItem('model');
+    if (currentModel) setModel(currentModel);
+  }, []);
+
+  useEffect(() => {
+    setLoading(true);
+    setError('');
     (async () => {
       try {
         const res = await fetch('/api/models', { cache: 'no-cache' });
@@ -123,13 +135,6 @@ export default function ModelSelect() {
         setLoading(false);
       }
     })();
-    setShowSelector(!showSelector);
-  };
-
-  /* eslint-disable react-hooks/exhaustive-deps */
-  useEffect(() => {
-    const currentModel = localStorage.getItem('model');
-    if (currentModel) setModel(currentModel);
   }, []);
 
   useEffect(() => {

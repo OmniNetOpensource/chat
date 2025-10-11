@@ -33,6 +33,8 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     setCanClick(text.trim().length > 0 || files.length > 0 || status === 'streaming');
   }, [text, files.length, status]);
 
+  const fileUploadRef = useRef<HTMLInputElement>(null);
+
   const handleSend = () => {
     //console.log('handleSend called, text:', text, 'canClick:', canClick); // 调试信息
     if (!text.trim() && files.length === 0) {
@@ -42,7 +44,9 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
 
     let contentToSend: Content[] = [];
     contentToSend = files.map((file) => ({ type: 'image_url', image_url: { url: file.base64 } }));
-    contentToSend.push({ type: 'text', text: text });
+    if (text) {
+      contentToSend.push({ type: 'text', text: text });
+    }
     setText('');
     clearFiles();
     if (editing && onFinishEdit) {
@@ -61,6 +65,10 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   };
   const handleTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
+  };
+
+  const handleFileUploadClick = () => {
+    fileUploadRef.current?.click();
   };
 
   useEffect(() => {
@@ -141,7 +149,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
       />
       <div className="my-0 mx-0 w-full h-[32px] flex flex-row gap-1 justify-between items-center">
         <button
-          onClick={() => document.getElementById('file-upload')?.click()}
+          onClick={handleFileUploadClick}
           className={`cursor-pointer p-1 rounded-md hover:bg-hoverbg transition-colors`}
         >
           <AttachIcon
@@ -150,7 +158,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
           />
         </button>
         <input
-          id="file-upload"
+          ref={fileUploadRef}
           type="file"
           accept="image/*"
           className="hidden"
