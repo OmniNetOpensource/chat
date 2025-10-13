@@ -28,17 +28,8 @@ const ImageViewerOverlay = ({ imageUrl, onClose }: ImageViewerOverlayProps) => {
       );
     });
   };
-
-  const handlePointerDown = () => {
-    // TODO: Implement pointer down handling
-  };
-
-  const handlePointerMove = () => {
-    // TODO: Implement pointer move handling
-  };
-
-  const handlePointerUp = () => {
-    // TODO: Implement pointer up handling
+  const imageClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
   };
 
   return (
@@ -52,9 +43,7 @@ const ImageViewerOverlay = ({ imageUrl, onClose }: ImageViewerOverlayProps) => {
         className="h-fit w-fit bg-transparent
         absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"
         onWheel={handleWheel}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
+        onClick={imageClick}
         style={{
           transform: `scale(${scale})`,
           transformOrigin: 'center center',
