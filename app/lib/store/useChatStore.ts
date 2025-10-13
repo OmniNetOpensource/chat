@@ -58,11 +58,11 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   sendMessage: async (index, content) => {
     const controller = new AbortController();
 
-    set({
-      messages: [...get().messages.slice(0, index), { role: 'user', content: content }],
+    set((state) => ({
+      messages: [...state.messages.slice(0, index), { role: 'user', content: content }],
       status: 'streaming',
       controller: controller,
-    });
+    }));
 
     const messagesToSend = get().messages.map((msg) => {
       return {
@@ -107,9 +107,9 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
 
       if (!response.ok) {
         const errorText = await response.text();
-        set({
+        set(() => ({
           error: `Failed to send message: ${response.status} ${response.statusText}. ${errorText}`,
-        });
+        }));
         return null;
       }
 
@@ -158,6 +158,8 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
                 const latestMessage = messages[messages.length - 1].content;
                 const latestContent = latestMessage[latestMessage.length - 1] || {};
 
+                let newThinkingId = state.currentThinkingId;
+
                 if (thinking) {
                   const isLastThinking = latestContent && latestContent.type === 'thinking';
 
@@ -171,7 +173,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
                       text: thinking,
                       time: Date.now(),
                     });
-                    set({ currentThinkingId: newId });
+                    newThinkingId = newId;
                   }
                 }
 
@@ -190,11 +192,11 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
                       type: 'text',
                       text: answering,
                     });
-                    set({ currentThinkingId: '' });
+                    newThinkingId = '';
                   }
                 }
 
-                return { messages };
+                return { messages, currentThinkingId: newThinkingId };
               });
             } catch (e) {
               console.error('Error parsing stream data:', e);
@@ -207,7 +209,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         console.error('Request error:', error);
       }
     } finally {
-      set({ status: 'ready', controller: undefined });
+      set(() => ({ status: 'ready', controller: undefined }));
       const existing = await getConversation(get().currentConversationId as string);
       if (existing) {
         await saveConversation({
@@ -234,13 +236,13 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   controller: undefined,
   status: 'ready' as const,
   clear: () => {
-    set({
+    set(() => ({
       messages: [],
       status: 'ready',
       controller: undefined,
       currentConversationId: null,
       currentThinkingId: '',
-    });
+    }));
   },
   currentMessage: [],
   currentThinkingId: '',
@@ -256,7 +258,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     if (!currentConversation) {
       return null;
     }
-    set({
+    set(() => ({
       messages: currentConversation.messages,
       currentConversationId: currentConversation.id,
       model: currentConversation.model || 'anthropic/claude-4.5-sonnet',
@@ -271,19 +273,19 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
 请主动预见可能产生歧义或困惑的地方，在讲到这些点时停下来做个说明。比如某个术语有多种含义，或者某个步骤容易被误解，就提前澄清。用具体例子和场景来说明抽象概念，指出新手常见的误区和容易忽略的细节。可以适当使用类比，但要确保类比准确，不要为了简化而丢失关键信息。
 
 默认使用完整句子与成段表述；少使用要点式列表。`,
-    });
+    }));
     return currentConversation.id;
   },
   error: null,
   model: 'x-ai/grok-4-fast:free',
   setModel: (modelName) => {
-    set({ model: modelName });
+    set(() => ({ model: modelName }));
   },
   systemPrompt: '',
   setSystemPrompt: (prompt) => {
-    set({ systemPrompt: prompt });
+    set(() => ({ systemPrompt: prompt }));
   },
   setCurrentConversationId: (id) => {
-    set({ currentConversationId: id });
+    set(() => ({ currentConversationId: id }));
   },
 }));
