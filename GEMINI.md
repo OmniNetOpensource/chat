@@ -10,7 +10,7 @@ This is a modern AI chat application built with Next.js 15, React 19, and Tailwi
 *   **UI Library:** React 19
 *   **Styling:** Tailwind CSS 4
 *   **State Management:** Zustand
-*   **AI SDK:** @ai-sdk/react
+*   **AI SDK:** `@ai-sdk/react`
 *   **Language:** TypeScript
 *   **Package Manager:** pnpm
 
