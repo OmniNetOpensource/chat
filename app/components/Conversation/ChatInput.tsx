@@ -10,6 +10,9 @@ import AttachIcon from '../Icons/AttachIcon';
 import LoadingIcon from '../Icons/LoadingIcon';
 import UpArrowIcon from '../Icons/UpArrowIcon';
 import ImageViewer from '../ImageViewer/ImageViewer';
+
+import { fileType } from '@/app/lib/hooks/useFileUpload';
+
 interface ChatInputProps {
   index: number;
   fileContent: string[];
@@ -20,7 +23,7 @@ interface ChatInputProps {
 
 const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: ChatInputProps) => {
   const { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles } = useFileUpload({
-    initialFiles: fileContent,
+    initialFiles: [],
   });
   const router = useRouter();
   const { isMobile } = useResponsive();
@@ -99,7 +102,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
-      if (item.type.startsWith('image/')) {
+      if (item.type.startsWith('image/') || item.type.startsWith('pdf/')) {
         addFilesFromPaste(item);
       }
     }

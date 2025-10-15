@@ -30,8 +30,15 @@ interface ThinkingContent {
   id: string;
   time: number;
 }
+interface fileContent {
+  type: 'file';
+  file: {
+    filename: string;
+    file_data: string;
+  };
+}
 
-export type Content = TextContent | ThinkingContent | ImageContent;
+export type Content = TextContent | ThinkingContent | ImageContent | fileContent;
 
 export interface Message {
   role: 'user' | 'system' | 'assistant';
@@ -110,6 +117,14 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
             effort: 'high',
           },
           //preset: '',
+          plugins: [
+            {
+              id: 'file-parser',
+              pdf: {
+                engine: 'mistral-ocr',
+              },
+            },
+          ],
         }),
         signal: controller.signal,
       });

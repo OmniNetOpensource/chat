@@ -2,9 +2,10 @@
 
 import { ChangeEvent, useState } from 'react';
 
-interface fileType {
+export interface fileType {
   id: string;
   base64: string;
+  mimeType: string;
 }
 
 type FileReaderFunction = (file: File) => Promise<string>;
@@ -19,12 +20,17 @@ const readFileAsBase64: FileReaderFunction = (file) => {
 };
 
 interface useFileUploadProps {
-  initialFiles: string[];
+  initialFiles: fileType[];
 }
 
 export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
   const [files, setFiles] = useState<fileType[]>(
-    () => initialFiles?.map((file_url) => ({ id: crypto.randomUUID(), base64: file_url })) || [],
+    () =>
+      initialFiles.map((file) => ({
+        id: file.id,
+        base64: file.base64,
+        mimeType: file.mimeType,
+      })) || [],
   );
   const clearFiles = () => {
     setFiles([]);
@@ -46,6 +52,7 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
         return {
           id: crypto.randomUUID(),
           base64: base64,
+          mimeType: file.type,
         };
       });
 
@@ -65,6 +72,7 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
       const newFile = {
         id: crypto.randomUUID(),
         base64: base64,
+        mimeType: file.type,
       };
       setFiles((prevFiles) => [...prevFiles, newFile]);
     } catch (error) {
