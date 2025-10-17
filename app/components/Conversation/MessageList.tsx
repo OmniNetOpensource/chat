@@ -165,11 +165,7 @@ const MessageList: React.FC = () => {
         </div>
       ))}
 
-      <div>
-        {Array.from({ length: 10 }).map((_, i) => (
-          <br key={i} />
-        ))}
-      </div>
+      <div className="h-[200px]" />
     </div>
   );
 };
