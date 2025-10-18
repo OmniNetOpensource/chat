@@ -18,10 +18,7 @@ const Conversation: React.FC = () => {
         <MessageList />
       </div>
 
-      <ChatInput
-        index={messages.length}
-        textContent=""
-      />
+      <ChatInput index={messages.length} />
     </div>
   );
 };

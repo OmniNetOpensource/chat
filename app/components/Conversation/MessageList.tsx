@@ -59,10 +59,6 @@ const MessageList: React.FC = () => {
             >
               <ChatInput
                 index={index}
-                textContent={msg.content
-                  .filter((m): m is Extract<MessageBlock, { type: 'text' }> => m.type === 'text')
-                  .map((m) => m.text)
-                  .join('')}
                 editing={true}
                 onFinishEdit={() => handleFinishEdit(index)}
               />

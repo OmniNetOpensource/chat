@@ -14,20 +14,24 @@ import FileViewer from '../FileViewer/FileViewer';
 
 interface ChatInputProps {
   index: number;
-  textContent: string;
   editing?: boolean;
   onFinishEdit?: () => void;
 }
 
-const ChatInput = ({ index, textContent, editing, onFinishEdit }: ChatInputProps) => {
+const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
+  const { messages, status, sendMessage, stop, setCurrentConversationId, currentConversationId } =
+    useChatStore();
   const { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles } = useFileUpload({
-    initialFiles: [],
+    initialFiles: messages[index]?.content.filter(
+      (msg) => msg.type === 'file' || msg.type === 'image',
+    ),
   });
   const router = useRouter();
   const { isMobile } = useResponsive();
-  const { status, sendMessage, stop, setCurrentConversationId, currentConversationId } =
-    useChatStore();
-  const [text, setText] = useState<string>(textContent);
+
+  const [text, setText] = useState<string>(
+    messages[index]?.content.filter((msg) => msg.type === 'text').join(''),
+  );
   const [canClick, setCanClick] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
@@ -88,9 +92,7 @@ const ChatInput = ({ index, textContent, editing, onFinishEdit }: ChatInputProps
   }, [text, isMobile]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    console.log('Key pressed:', e.key, 'Shift:', e.shiftKey); // 调试信息
     if (e.key === 'Enter' && !e.shiftKey) {
-      console.log('Preventing default and sending message'); // 调试信息
       e.preventDefault();
       handleSend();
     }
@@ -150,10 +152,7 @@ const ChatInput = ({ index, textContent, editing, onFinishEdit }: ChatInputProps
         placeholder="prompt in , everything out"
         value={text}
         onChange={handleTextAreaChange}
-        onKeyDown={(e) => {
-          console.log('Any key pressed:', e.key, 'in textarea');
-          handleKeyDown(e);
-        }}
+        onKeyDown={handleKeyDown}
         onPaste={handlePaste}
         style={{ height: '24px' }}
       />
