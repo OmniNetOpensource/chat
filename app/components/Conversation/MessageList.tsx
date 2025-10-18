@@ -7,7 +7,6 @@ import CheckIcon from '../Icons/CheckIcon';
 import RedoIcon from '../Icons/RedoIcon';
 import { useResponsive } from '@/app/lib/hooks/useResponsive';
 import { useChatStore } from '@/app/lib/store/useChatStore';
-import { type MessageBlock } from '@/app/lib/types';
 import EditIcon from '../Icons/EditIcon';
 import ChatInput from './ChatInput';
 

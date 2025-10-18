@@ -11,7 +11,7 @@ import LoadingIcon from '../Icons/LoadingIcon';
 import UpArrowIcon from '../Icons/UpArrowIcon';
 import ImageViewer from '../ImageViewer/ImageViewer';
 import FileViewer from '../FileViewer/FileViewer';
-
+import { Paperclip } from 'lucide-react';
 interface ChatInputProps {
   index: number;
   editing?: boolean;
@@ -22,15 +22,17 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
   const { messages, status, sendMessage, stop, setCurrentConversationId, currentConversationId } =
     useChatStore();
   const { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles } = useFileUpload({
-    initialFiles: messages[index]?.content.filter(
-      (msg) => msg.type === 'file' || msg.type === 'image',
-    ),
+    initialFiles:
+      messages[index]?.content.filter((msg) => msg.type === 'file' || msg.type === 'image') || [],
   });
   const router = useRouter();
   const { isMobile } = useResponsive();
 
   const [text, setText] = useState<string>(
-    messages[index]?.content.filter((msg) => msg.type === 'text').join(''),
+    messages[index]?.content
+      .filter((msg) => msg.type === 'text')
+      .map((msg) => msg.text)
+      .join('') || '',
   );
   const [canClick, setCanClick] = useState<boolean>(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -161,10 +163,7 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
           onClick={handleFileUploadClick}
           className={`cursor-pointer p-1 rounded-md hover:bg-hoverbg transition-colors`}
         >
-          <AttachIcon
-            width={20}
-            height={20}
-          />
+          <Paperclip />
         </button>
         <input
           ref={fileUploadRef}

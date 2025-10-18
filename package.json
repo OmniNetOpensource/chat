@@ -25,6 +25,7 @@
     "highlight.js": "^11.11.1",
     "idb": "^8.0.3",
     "immer": "^10.1.1",
+    "lucide-react": "^0.546.0",
     "marked": "^16.1.2",
     "marked-highlight": "^2.2.2",
     "marked-katex-extension": "^5.1.5",
