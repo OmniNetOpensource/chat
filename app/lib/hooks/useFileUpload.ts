@@ -1,14 +1,10 @@
 'use client';
 
 import { ChangeEvent, useState } from 'react';
-
-export interface fileType {
-  id: string;
-  base64: string;
-  mimeType: string;
-}
+import { FileBlock, ImageBlock } from '../types';
 
 type FileReaderFunction = (file: File) => Promise<string>;
+type UploadBlock = ImageBlock | FileBlock;
 
 const readFileAsBase64: FileReaderFunction = (file) => {
   return new Promise((resolve, reject) => {
@@ -20,18 +16,42 @@ const readFileAsBase64: FileReaderFunction = (file) => {
 };
 
 interface useFileUploadProps {
-  initialFiles: fileType[];
+  initialFiles?: UploadBlock[];
+}
+
+function mapInitialFiles(initialFiles: UploadBlock[] | undefined): UploadBlock[] {
+  if (!initialFiles || initialFiles.length === 0) {
+    return [];
+  }
+
+  return initialFiles.map((file) => ({
+    id: file.id,
+    base64: file.base64,
+    type: file.type,
+  }));
+}
+
+async function createUploadBlock(file: File): Promise<UploadBlock> {
+  const base64 = await readFileAsBase64(file);
+  const id = crypto.randomUUID();
+
+  if (file.type.startsWith('image/')) {
+    return {
+      id,
+      base64,
+      type: 'image',
+    };
+  }
+
+  return {
+    id,
+    base64,
+    type: 'file',
+  };
 }
 
 export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
-  const [files, setFiles] = useState<fileType[]>(
-    () =>
-      initialFiles.map((file) => ({
-        id: file.id,
-        base64: file.base64,
-        mimeType: file.mimeType,
-      })) || [],
-  );
+  const [files, setFiles] = useState<UploadBlock[]>(() => mapInitialFiles(initialFiles));
   const clearFiles = () => {
     setFiles([]);
   };
@@ -47,16 +67,7 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
     }
 
     try {
-      const filesProcessPromise = Array.from(filesToAdd).map(async (file) => {
-        const base64 = await readFileAsBase64(file);
-        return {
-          id: crypto.randomUUID(),
-          base64: base64,
-          mimeType: file.type,
-        };
-      });
-
-      const newFiles = await Promise.all(filesProcessPromise);
+      const newFiles = await Promise.all(Array.from(filesToAdd).map(createUploadBlock));
 
       setFiles((prevFiles) => [...prevFiles, ...newFiles]);
     } catch (error) {
@@ -68,12 +79,7 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
 
   const addFilesFromPaste = async (file: File) => {
     try {
-      const base64 = await readFileAsBase64(file);
-      const newFile = {
-        id: crypto.randomUUID(),
-        base64: base64,
-        mimeType: file.type,
-      };
+      const newFile = await createUploadBlock(file);
       setFiles((prevFiles) => [...prevFiles, newFile]);
     } catch (error) {
       console.log(error);

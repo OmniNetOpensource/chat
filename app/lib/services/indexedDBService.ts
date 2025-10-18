@@ -1,15 +1,15 @@
-import { type Message } from '../store/useChatStore';
+import { Content, type MessageType, Message } from '../types';
 import { openDB, type IDBPDatabase } from 'idb';
 
 const DB_NAME = 'ChatAppDB';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 
 const CONVERSATION_STORE = 'conversations';
 
 export interface ConversationRecord {
   id: string;
   title: string;
-  messages: Message[];
+  messages: MessageType[];
   updatedAt: number;
   systemPrompt: string;
   model: string;
@@ -17,9 +17,57 @@ export interface ConversationRecord {
 
 async function openDatabase(): Promise<IDBPDatabase> {
   return openDB(DB_NAME, DB_VERSION, {
-    upgrade(db) {
-      if (!db.objectStoreNames.contains(CONVERSATION_STORE)) {
-        db.createObjectStore(CONVERSATION_STORE, { keyPath: 'id' });
+    async upgrade(db, oldVersion, newVersion, tx) {
+      if (oldVersion < 1) {
+        if (!db.objectStoreNames.contains(CONVERSATION_STORE)) {
+          db.createObjectStore(CONVERSATION_STORE, { keyPath: 'id' });
+        }
+      }
+      if (oldVersion < 2) {
+        console.log('Upgrading database from version 1 to 2');
+        const store = tx.objectStore(CONVERSATION_STORE);
+        const conversations = await store.getAll();
+
+        for (const conv of conversations) {
+          const newMessages = conv.messages.map((message: Message) => {
+            const newContent = message.content.map((block: Content) => {
+              switch (block.type) {
+                case 'image_url':
+                  return {
+                    id: crypto.randomUUID(),
+                    type: 'image',
+                    base64: block.image_url?.url || '',
+                  };
+
+                case 'thinking':
+                  return {
+                    id: block.id || crypto.randomUUID(),
+                    type: 'thinking',
+                    text: block.text || '',
+                    time: block.time || 0,
+                  };
+
+                case 'text':
+                  return {
+                    id: crypto.randomUUID(),
+                    type: 'text',
+                    text: block.text || '',
+                  };
+
+                default:
+                  return block;
+              }
+            });
+
+            return {
+              role: message.role,
+              content: newContent,
+            };
+          });
+
+          await store.put({ ...conv, messages: newMessages });
+        }
+        console.log('Database upgrade complete: migrated Content[] to MessageBlock[]');
       }
     },
   });

@@ -50,6 +50,7 @@ const ImageViewerOverlay = ({ imageUrl, onClose }: ImageViewerOverlayProps) => {
           transition: 'transform 80ms ease-out',
         }}
       >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={imageUrl}
           alt="fullscreen"

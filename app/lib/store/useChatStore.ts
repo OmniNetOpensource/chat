@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import { saveConversation, getConversation } from '../services/indexedDBService';
+import { type MessageType, type UserMessage } from '../types';
 
 export {
   DatabaseError,
@@ -12,56 +13,20 @@ export {
   withExponentialBackoff,
 } from '../errors';
 
-interface TextContent {
-  type: 'text';
-  text: string;
-}
-
-interface ImageContent {
-  type: 'image_url';
-  image_url: {
-    url: string;
-  };
-}
-
-interface ThinkingContent {
-  type: 'thinking';
-  text: string;
-  id: string;
-  time: number;
-}
-interface fileContent {
-  type: 'file';
-  file: {
-    filename: string;
-    file_data: string;
-  };
-}
-
-export type Content = TextContent | ThinkingContent | ImageContent | fileContent;
-
-export interface Message {
-  role: 'user' | 'system' | 'assistant';
-  content: Content[];
-}
-
 interface UseChatStoreProps {
-  messages: Message[];
-  sendMessage: (index: number, content: Content[]) => void; // Return conversationId for new conversations
+  messages: MessageType[];
+  sendMessage: (index: number, message: UserMessage) => void;
   stop: () => void;
   regenerate: (index: number) => void;
   controller: AbortController | undefined;
   status: 'ready' | 'streaming';
   clear: () => void;
-
-  currentThinkingId: string;
-
-  editing: number;
   error: string | null;
+  currentThinkingId: string;
 
   currentConversationId: string | null;
   setCurrentConversationId: (id: string) => void;
-  loadConversation: (id: string) => Promise<string | null>; // Return conversationId
+  loadConversation: (id: string) => Promise<string | null>;
 
   model: string;
   setModel: (modelName: string) => void;
@@ -71,28 +36,55 @@ interface UseChatStoreProps {
 
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   messages: [],
-  sendMessage: async (index, content) => {
+  sendMessage: async (index, message) => {
     const controller = new AbortController();
 
     set((state) => ({
-      messages: [...state.messages.slice(0, index), { role: 'user', content: content }],
+      messages: [...state.messages.slice(0, index), message],
       status: 'streaming',
       controller: controller,
+      currentThinkingId: '',
     }));
 
     const messagesToSend = get().messages.map((msg) => {
       return {
         role: msg.role,
-        content: msg.content.filter((c) => c.type !== 'thinking'),
+        content: msg.content
+          .map((block) => {
+            switch (block.type) {
+              case 'text':
+                return {
+                  type: 'text',
+                  text: block.text,
+                };
+              case 'thinking':
+                return null;
+              case 'image':
+                return {
+                  type: 'image_url',
+                  image_url: {
+                    url: block.base64,
+                  },
+                };
+              case 'file':
+                return {
+                  type: 'file',
+                  file: {
+                    filename: 'attachment.pdf',
+                    file_data: block.base64,
+                  },
+                };
+              case 'websearch':
+                return null;
+              default:
+                return null;
+            }
+          })
+          .filter(Boolean),
       };
     });
 
-    const title =
-      get()
-        .messages[0].content.filter((m) => m.type === 'text')
-        .map((m) => m.text)
-        .join('')
-        .slice(0, 10) || 'title';
+    const title = 'title';
 
     await saveConversation({
       id: get().currentConversationId as string,
@@ -116,13 +108,16 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
           reasoning: {
             effort: 'high',
           },
-          //preset: '',
           plugins: [
             {
               id: 'file-parser',
               pdf: {
                 engine: 'mistral-ocr',
               },
+            },
+            {
+              id: 'web',
+              engine: 'native',
             },
           ],
         }),
@@ -151,6 +146,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
+        console.log(buffer, 'buffer\n');
 
         while (true) {
           const lineEnd = buffer.indexOf('\n');
@@ -213,6 +209,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
                       );
                     }
                     latestMessage.push({
+                      id: crypto.randomUUID(),
                       type: 'text',
                       text: answering,
                     });
@@ -253,7 +250,9 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
 
   regenerate: (index: number) => {
     const newMessages = get().messages[index - 1];
-    get().sendMessage(index - 1, newMessages.content);
+    if (newMessages.role === 'user') {
+      get().sendMessage(index - 1, newMessages as UserMessage);
+    }
     console.log(`Regenerating message at index: ${index}`);
   },
 

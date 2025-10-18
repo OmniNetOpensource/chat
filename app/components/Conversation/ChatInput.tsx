@@ -4,24 +4,22 @@ import { useRouter } from 'next/navigation';
 import { useResponsive } from '@/app/lib/hooks/useResponsive';
 import { useFileUpload } from '@/app/lib/hooks/useFileUpload';
 import { useChatStore } from '@/app/lib/store/useChatStore';
-import { type Content } from '@/app/lib/store/useChatStore';
+import { type MessageBlock, type UserMessage } from '@/app/lib/types';
 import CloseIcon from '../Icons/CloseIcon';
 import AttachIcon from '../Icons/AttachIcon';
 import LoadingIcon from '../Icons/LoadingIcon';
 import UpArrowIcon from '../Icons/UpArrowIcon';
 import ImageViewer from '../ImageViewer/ImageViewer';
-
-import { fileType } from '@/app/lib/hooks/useFileUpload';
+import FileViewer from '../FileViewer/FileViewer';
 
 interface ChatInputProps {
   index: number;
-  fileContent: string[];
   textContent: string;
   editing?: boolean;
   onFinishEdit?: () => void;
 }
 
-const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: ChatInputProps) => {
+const ChatInput = ({ index, textContent, editing, onFinishEdit }: ChatInputProps) => {
   const { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles } = useFileUpload({
     initialFiles: [],
   });
@@ -39,16 +37,14 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
   const fileUploadRef = useRef<HTMLInputElement>(null);
 
   const handleSend = () => {
-    //console.log('handleSend called, text:', text, 'canClick:', canClick); // 调试信息
     if (!text.trim() && files.length === 0) {
-      //console.log('No content to send'); // 调试信息
       return;
     }
 
-    let contentToSend: Content[] = [];
-    contentToSend = files.map((file) => ({ type: 'image_url', image_url: { url: file.base64 } }));
+    const contentToSend: MessageBlock[] = [...files];
+
     if (text) {
-      contentToSend.push({ type: 'text', text: text });
+      contentToSend.push({ type: 'text', text, id: crypto.randomUUID() });
     }
     setText('');
     clearFiles();
@@ -64,7 +60,11 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     }
 
     // 开始发送消息（不等待完成）
-    sendMessage(index, contentToSend);
+    const userMessage: UserMessage = {
+      role: 'user',
+      content: contentToSend,
+    };
+    sendMessage(index, userMessage);
   };
   const handleTextAreaChange = (e: ChangeEvent<HTMLTextAreaElement>) => {
     setText(e.target.value);
@@ -102,7 +102,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     for (let i = 0; i < items.length; i++) {
       const item = items[i];
 
-      if (item.type.startsWith('image/') || item.type.startsWith('pdf/')) {
+      if (item.type.startsWith('image/') || item.type === 'application/pdf') {
         addFilesFromPaste(item);
       }
     }
@@ -118,23 +118,30 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
     >
       {files.length > 0 && (
         <div className="flex flex-row gap-1 w-full h-fit m-0 p-0">
-          {files.map((file) => (
-            <div
-              key={file.id}
-              className="relative"
-            >
-              <ImageViewer imageUrl={file.base64} />
-              <button
-                onClick={() => removeFiles(file.id)}
-                className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+          {files.map((file) => {
+            const isImage = file.type === 'image';
+            return (
+              <div
+                key={file.id}
+                className="relative"
               >
-                <CloseIcon
-                  width={10}
-                  height={10}
-                />
-              </button>
-            </div>
-          ))}
+                {isImage ? (
+                  <ImageViewer imageUrl={file.base64} />
+                ) : (
+                  <FileViewer fileName="PDF attachment" />
+                )}
+                <button
+                  onClick={() => removeFiles(file.id)}
+                  className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+                >
+                  <CloseIcon
+                    width={10}
+                    height={10}
+                  />
+                </button>
+              </div>
+            );
+          })}
         </div>
       )}
       <textarea
@@ -163,7 +170,7 @@ const ChatInput = ({ index, fileContent, textContent, editing, onFinishEdit }: C
         <input
           ref={fileUploadRef}
           type="file"
-          accept="image/*"
+          accept="image/*,application/pdf"
           className="hidden"
           onChange={addFilesFromInput}
         />

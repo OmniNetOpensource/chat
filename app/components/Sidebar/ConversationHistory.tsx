@@ -1,14 +1,12 @@
 import { getAllConversations, type ConversationRecord } from '@/app/lib/services/indexedDBService';
 import { useChatStore } from '@/app/lib/store/useChatStore';
 import { useEffect, useRef, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Link from 'next/link';
 
 const ConversationHistory = () => {
   const [conversationHistories, setConversationHistories] = useState<ConversationRecord[]>([]);
-  const { loadConversation, status } = useChatStore();
-  const router = useRouter();
+  const { status } = useChatStore();
   const parentRef = useRef<HTMLDivElement>(null);
   const virtualizer = useVirtualizer({
     count: conversationHistories.length,

@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import React from 'react';
 import MessageList from './MessageList';
@@ -20,7 +20,6 @@ const Conversation: React.FC = () => {
 
       <ChatInput
         index={messages.length}
-        fileContent={[]}
         textContent=""
       />
     </div>

@@ -6,7 +6,8 @@ import CopyIcon from '../Icons/CopyIcon';
 import CheckIcon from '../Icons/CheckIcon';
 import RedoIcon from '../Icons/RedoIcon';
 import { useResponsive } from '@/app/lib/hooks/useResponsive';
-import { useChatStore, type Content } from '@/app/lib/store/useChatStore';
+import { useChatStore } from '@/app/lib/store/useChatStore';
+import { type MessageBlock } from '@/app/lib/types';
 import EditIcon from '../Icons/EditIcon';
 import ChatInput from './ChatInput';
 
@@ -58,13 +59,8 @@ const MessageList: React.FC = () => {
             >
               <ChatInput
                 index={index}
-                fileContent={msg.content
-                  .filter(
-                    (m): m is Extract<Content, { type: 'image_url' }> => m.type === 'image_url',
-                  )
-                  .map((m) => m.image_url.url)}
                 textContent={msg.content
-                  .filter((m): m is Extract<Content, { type: 'text' }> => m.type === 'text')
+                  .filter((m): m is Extract<MessageBlock, { type: 'text' }> => m.type === 'text')
                   .map((m) => m.text)
                   .join('')}
                 editing={true}

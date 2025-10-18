@@ -3,19 +3,20 @@
 import { useState, memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import 'katex/dist/katex.min.css';
-import { type Content, useChatStore } from '@/app/lib/store/useChatStore';
+import { useChatStore } from '@/app/lib/store/useChatStore';
+import { type MessageBlock } from '@/app/lib/types';
 import SlideLight from '../SlideLight/SlideLight';
 import ImageViewer from '../ImageViewer/ImageViewer';
+import FileViewer from '../FileViewer/FileViewer';
 
 interface PreviewProps {
-  rawContent: Content[];
+  rawContent: MessageBlock[];
 }
 
-const MessageRenderer = memo(({ msg }: { msg: Content }) => {
+const MessageRenderer = memo(({ msg }: { msg: MessageBlock }) => {
   const [isExpand, setIsExpand] = useState<boolean>(false);
   const { currentThinkingId, status } = useChatStore();
 
@@ -76,11 +77,13 @@ const Preview = ({ rawContent }: PreviewProps) => {
             key={index}
             msg={msg}
           />
-        ) : msg.type === 'image_url' ? (
+        ) : msg.type === 'image' ? (
           <ImageViewer
-            imageUrl={msg.image_url.url}
+            imageUrl={msg.base64}
             key={index}
           />
+        ) : msg.type === 'file' ? (
+          <FileViewer key={index} />
         ) : null;
       })}
     </div>
