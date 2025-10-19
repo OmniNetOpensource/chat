@@ -6,7 +6,6 @@ import { useFileUpload } from '@/app/lib/hooks/useFileUpload';
 import { useChatStore } from '@/app/lib/store/useChatStore';
 import { type MessageBlock, type UserMessage } from '@/app/lib/types';
 import CloseIcon from '../Icons/CloseIcon';
-import AttachIcon from '../Icons/AttachIcon';
 import LoadingIcon from '../Icons/LoadingIcon';
 import UpArrowIcon from '../Icons/UpArrowIcon';
 import ImageViewer from '../ImageViewer/ImageViewer';
@@ -19,12 +18,21 @@ interface ChatInputProps {
 }
 
 const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
-  const { messages, status, sendMessage, stop, setCurrentConversationId, currentConversationId } =
-    useChatStore();
-  const { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles } = useFileUpload({
-    initialFiles:
-      messages[index]?.content.filter((msg) => msg.type === 'file' || msg.type === 'image') || [],
-  });
+  const {
+    messages,
+    status,
+    sendMessage,
+    stop,
+    setCurrentConversationId,
+    currentConversationId,
+    isDragging,
+    setIsDragging,
+  } = useChatStore();
+  const { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles, addFilesFromDrop } =
+    useFileUpload({
+      initialFiles:
+        messages[index]?.content.filter((msg) => msg.type === 'file' || msg.type === 'image') || [],
+    });
   const router = useRouter();
   const { isMobile } = useResponsive();
 
@@ -41,6 +49,23 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
   }, [text, files.length, status]);
 
   const fileUploadRef = useRef<HTMLInputElement>(null);
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = 'copy';
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const { files: droppedFiles } = e.dataTransfer;
+    if (!droppedFiles || droppedFiles.length === 0) {
+      return;
+    }
+    void addFilesFromDrop(droppedFiles);
+  };
 
   const handleSend = () => {
     if (!text.trim() && files.length === 0) {
@@ -120,78 +145,89 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
     bg-secondary flex flex-col gap-0 border-none
     transition-all duration-700 ease-in-out`}
     >
-      {files.length > 0 && (
-        <div className="flex flex-row gap-1 w-full h-fit m-0 p-0">
-          {files.map((file) => {
-            const isImage = file.type === 'image';
-            return (
-              <div
-                key={file.id}
-                className="relative"
-              >
-                {isImage ? (
-                  <ImageViewer imageUrl={file.base64} />
-                ) : (
-                  <FileViewer fileName="PDF attachment" />
-                )}
-                <button
-                  onClick={() => removeFiles(file.id)}
-                  className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+      <div className="relative z-0">
+        {files.length > 0 && (
+          <div className="flex flex-row gap-1 w-full h-fit m-0 p-0">
+            {files.map((file) => {
+              const isImage = file.type === 'image';
+              return (
+                <div
+                  key={file.id}
+                  className="relative"
                 >
-                  <CloseIcon
-                    width={10}
-                    height={10}
-                  />
-                </button>
-              </div>
-            );
-          })}
+                  {isImage ? (
+                    <ImageViewer imageUrl={file.base64} />
+                  ) : (
+                    <FileViewer fileName="PDF attachment" />
+                  )}
+                  <button
+                    onClick={() => removeFiles(file.id)}
+                    className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 hover:bg-red-600 rounded-full flex items-center justify-center transition-colors"
+                  >
+                    <CloseIcon
+                      width={10}
+                      height={10}
+                    />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        )}
+        <textarea
+          ref={textareaRef}
+          className="bg-transparent w-full text-sm overflow-y-auto focus:outline-none focus:border-none resize-none pl-1.5 mb-3"
+          placeholder="prompt in , everything out"
+          value={text}
+          onChange={handleTextAreaChange}
+          onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
+          style={{ height: '24px' }}
+        />
+        <div className="my-0 mx-0 w-full h-[32px] flex flex-row gap-1 justify-between items-center">
+          <button
+            onClick={handleFileUploadClick}
+            className={`cursor-pointer p-1 rounded-md hover:bg-hoverbg transition-colors`}
+          >
+            <Paperclip />
+          </button>
+          <input
+            ref={fileUploadRef}
+            type="file"
+            accept="image/*,application/pdf"
+            className="hidden"
+            onChange={addFilesFromInput}
+          />
+          <button
+            className={`bg-primary ${
+              canClick ? 'cursor-pointer opacity-100' : 'cursor-not-allowed opacity-10'
+            } rounded-md py-1 px-[5px] text-secondary transition-opacity`}
+            onClick={status === 'streaming' ? stop : handleSend}
+            disabled={!canClick}
+          >
+            {status === 'streaming' ? (
+              <LoadingIcon
+                width={20}
+                height={20}
+              />
+            ) : (
+              <UpArrowIcon
+                width={20}
+                height={20}
+              />
+            )}
+          </button>
+        </div>
+      </div>
+      {isDragging && (
+        <div
+          className="absolute inset-0 z-overlay bg-blue-500/10 border-2 border-dashed border-blue-500 rounded-md flex items-center justify-center"
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          <p className="text-blue-500 font-medium">Drop files here</p>
         </div>
       )}
-      <textarea
-        ref={textareaRef}
-        className="bg-transparent w-full text-sm overflow-y-auto focus:outline-none focus:border-none resize-none pl-1.5 mb-3"
-        placeholder="prompt in , everything out"
-        value={text}
-        onChange={handleTextAreaChange}
-        onKeyDown={handleKeyDown}
-        onPaste={handlePaste}
-        style={{ height: '24px' }}
-      />
-      <div className="my-0 mx-0 w-full h-[32px] flex flex-row gap-1 justify-between items-center">
-        <button
-          onClick={handleFileUploadClick}
-          className={`cursor-pointer p-1 rounded-md hover:bg-hoverbg transition-colors`}
-        >
-          <Paperclip />
-        </button>
-        <input
-          ref={fileUploadRef}
-          type="file"
-          accept="image/*,application/pdf"
-          className="hidden"
-          onChange={addFilesFromInput}
-        />
-        <button
-          className={`bg-primary ${
-            canClick ? 'cursor-pointer opacity-100' : 'cursor-not-allowed opacity-10'
-          } rounded-md py-1 px-[5px] text-secondary transition-opacity`}
-          onClick={status === 'streaming' ? stop : handleSend}
-          disabled={!canClick}
-        >
-          {status === 'streaming' ? (
-            <LoadingIcon
-              width={20}
-              height={20}
-            />
-          ) : (
-            <UpArrowIcon
-              width={20}
-              height={20}
-            />
-          )}
-        </button>
-      </div>
     </div>
   );
 };

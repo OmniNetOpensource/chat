@@ -32,6 +32,9 @@ interface UseChatStoreProps {
   setModel: (modelName: string) => void;
   systemPrompt: string;
   setSystemPrompt: (prompt: string) => void;
+
+  isDragging: boolean;
+  setIsDragging: (value: boolean) => void;
 }
 
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
@@ -318,5 +321,11 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   },
   setCurrentConversationId: (id) => {
     set(() => ({ currentConversationId: id }));
+  },
+  isDragging: false,
+  setIsDragging: (value: boolean) => {
+    set(() => ({
+      isDragging: value,
+    }));
   },
 }));

@@ -6,10 +6,29 @@ import ChatInput from './ChatInput';
 import { useChatStore } from '@/app/lib/store/useChatStore';
 
 const Conversation: React.FC = () => {
-  const { messages } = useChatStore();
+  const { messages, setIsDragging } = useChatStore();
+
+  const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (event: React.DragEvent<HTMLDivElement>) => {
+    if (event.currentTarget.contains(event.relatedTarget as Node)) return;
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'none';
+  };
 
   return (
-    <div className="relative flex-1 min-h-0">
+    <div
+      className="relative flex-1 min-h-0"
+      onDragEnter={handleDragEnter}
+      onDragLeave={handleDragLeave}
+      onDragOver={handleDragOver}
+    >
       <div
         className={`overflow-y-auto
                     h-full w-full

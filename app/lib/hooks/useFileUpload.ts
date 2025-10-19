@@ -86,5 +86,17 @@ export const useFileUpload = ({ initialFiles }: useFileUploadProps) => {
     }
   };
 
-  return { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles };
+  const addFilesFromDrop = async (fileList: FileList | File[]) => {
+    const accepted = Array.from(fileList).filter(
+      (file) => file.type.startsWith('image/') || file.type === 'application/pdf',
+    );
+    if (accepted.length === 0) return;
+    try {
+      const newFiles = await Promise.all(accepted.map(createUploadBlock));
+      setFiles((prev) => [...prev, ...newFiles]);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  return { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles, addFilesFromDrop };
 };

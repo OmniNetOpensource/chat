@@ -67,13 +67,16 @@ const ImageViewer = ({ imageUrl }: ImageViewerProps) => {
 
   return (
     <>
-      <Image
-        src={imageUrl}
-        alt="preview"
-        width={100}
-        height={100}
-        onClick={() => setIsOpen(!isOpen)}
-      />
+      <div className="relative h-[100px] w-[100px] overflow-hidden rounded-md">
+        <Image
+          src={imageUrl}
+          alt="preview"
+          fill
+          className="object-cover" // 或 object-contain
+          sizes="100px"
+          onClick={() => setIsOpen(!isOpen)}
+        />
+      </div>
       {isOpen &&
         createPortal(
           <ImageViewerOverlay
