@@ -118,10 +118,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
                 engine: 'mistral-ocr',
               },
             },
-            {
-              id: 'web',
-              engine: 'native',
-            },
           ],
         }),
         signal: controller.signal,
