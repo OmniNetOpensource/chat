@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useChatStore } from '@/app/lib/store/useChatStore';
 
-type OpenRouterModelsResponse = {
+type ModelCatalogResponse = {
   data: Array<{ id: string }>;
 };
 
@@ -126,7 +126,7 @@ export default function ModelSelect() {
       try {
         const res = await fetch('/api/models', { cache: 'no-cache' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const json: OpenRouterModelsResponse = await res.json();
+        const json: ModelCatalogResponse = await res.json();
         setAvailableModels((json?.data ?? []).map((m) => m.id));
       } catch (e: unknown) {
         const errorMessage = e instanceof Error ? e.message : 'failed to load models';

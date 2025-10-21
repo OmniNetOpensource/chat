@@ -49,44 +49,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       currentThinkingId: '',
     }));
 
-    const messagesToSend = get().messages.map((msg) => {
-      return {
-        role: msg.role,
-        content: msg.content
-          .map((block) => {
-            switch (block.type) {
-              case 'text':
-                return {
-                  type: 'text',
-                  text: block.text,
-                };
-              case 'thinking':
-                return null;
-              case 'image':
-                return {
-                  type: 'image_url',
-                  image_url: {
-                    url: block.base64,
-                  },
-                };
-              case 'file':
-                return {
-                  type: 'file',
-                  file: {
-                    filename: 'attachment.pdf',
-                    file_data: block.base64,
-                  },
-                };
-              case 'websearch':
-                return null;
-              default:
-                return null;
-            }
-          })
-          .filter(Boolean),
-      };
-    });
-
     const title = 'title';
 
     await saveConversation({
@@ -106,19 +68,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         },
         body: JSON.stringify({
           model: get().model,
-          messages: [{ role: 'system', content: get().systemPrompt }, ...messagesToSend],
-          stream: true,
-          reasoning: {
-            effort: 'high',
-          },
-          plugins: [
-            {
-              id: 'file-parser',
-              pdf: {
-                engine: 'mistral-ocr',
-              },
-            },
-          ],
+          messages: [{ role: 'system', content: get().systemPrompt }, ...get().messages],
         }),
         signal: controller.signal,
       });
@@ -283,7 +233,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     set(() => ({
       messages: currentConversation.messages,
       currentConversationId: currentConversation.id,
-      model: currentConversation.model || 'anthropic/claude-4.5-sonnet',
+      model: currentConversation.model || 'google/gemini-2.5-flash',
       systemPrompt:
         currentConversation.systemPrompt ||
         `请用朴实、平静、耐心的语言回答我的问题，就像一个有经验的朋友在认真地帮我理解一个话题。语气要温和、鼓励，让人感到你愿意花时间把事情讲清楚。不要使用夸张的形容词和营销式的表达，比如"非常棒"、"超级强大"这类词，而是具体说明实际情况就好。
@@ -299,7 +249,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     return currentConversation.id;
   },
   error: null,
-  model: 'anthropic/claude-sonnet-4.5',
+  model: 'google/gemini-2.5-flash',
   setModel: (modelName) => {
     set(() => ({ model: modelName }));
   },
