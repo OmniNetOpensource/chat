@@ -1,5 +1,5 @@
-import { getAllConversations, type ConversationRecord } from '@/app/lib/services/indexedDBService';
-import { useChatStore } from '@/app/lib/store/useChatStore';
+import { getAllConversations, type ConversationRecord } from '@/lib/services/indexedDBService';
+import { useChatStore } from '@/lib/store/useChatStore';
 import { useEffect, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Link from 'next/link';

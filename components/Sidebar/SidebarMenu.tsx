@@ -1,7 +1,7 @@
 'use client';
 
 import Link, { type LinkProps } from 'next/link';
-import { useSidebarState } from '@/app/lib/store/useSidebarState';
+import { useSidebarState } from '@/lib/store/useSidebarState';
 
 interface StyledLinkProps {
   href: LinkProps['href'];

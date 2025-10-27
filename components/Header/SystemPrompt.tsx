@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import SystemPromptIcon from '../Icons/SystemPromptIcon'; // 1. 导入新图标
-import { useChatStore } from '@/app/lib/store/useChatStore';
+import { useChatStore } from '@/lib/store/useChatStore';
 const SystemPrompt = () => {
   const [promptEditing, setPromptEditing] = useState(false);
   const { systemPrompt, setSystemPrompt } = useChatStore();

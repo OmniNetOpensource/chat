@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useChatStore } from '@/app/lib/store/useChatStore';
+import { useChatStore } from '@/lib/store/useChatStore';
 
 type ModelCatalogResponse = {
   data: Array<{ id: string }>;

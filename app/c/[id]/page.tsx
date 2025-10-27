@@ -1,8 +1,8 @@
 'use client';
 
 import { useParams } from 'next/navigation';
-import Main from '@/app/components/Main/Main';
-import { useChatStore } from '@/app/lib/store/useChatStore';
+import Main from '@/components/Main/Main';
+import { useChatStore } from '@/lib/store/useChatStore';
 import { useEffect } from 'react';
 
 export default function ChatPage() {

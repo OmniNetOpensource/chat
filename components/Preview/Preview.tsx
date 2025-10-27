@@ -6,8 +6,8 @@ import remarkGfm from 'remark-gfm';
 import rehypeKatex from 'rehype-katex';
 import remarkMath from 'remark-math';
 import 'katex/dist/katex.min.css';
-import { useChatStore } from '@/app/lib/store/useChatStore';
-import { type MessageBlock } from '@/app/lib/types';
+import { useChatStore } from '@/lib/store/useChatStore';
+import { type MessageBlock } from '@/lib/types';
 import SlideLight from '../SlideLight/SlideLight';
 import ImageViewer from '../ImageViewer/ImageViewer';
 import FileViewer from '../FileViewer/FileViewer';
@@ -63,6 +63,28 @@ const MessageRenderer = memo(({ msg }: { msg: MessageBlock }) => {
     );
   }
 
+  if (msg.type === 'websearch') {
+    return (
+      <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-sm">
+        <div className="font-medium text-foreground/80">Web result</div>
+        {msg.title ? <div className="mt-1 font-semibold">{msg.title}</div> : null}
+        {msg.url ? (
+          <a
+            href={msg.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1 block break-words text-primary underline"
+          >
+            {msg.url}
+          </a>
+        ) : null}
+        {msg.content ? (
+          <p className="mt-1 whitespace-pre-wrap text-xs text-foreground/70">{msg.content}</p>
+        ) : null}
+      </div>
+    );
+  }
+
   return null;
 });
 
@@ -72,7 +94,7 @@ const Preview = ({ rawContent }: PreviewProps) => {
   return (
     <div className="prose dark:prose-invert">
       {rawContent.map((msg, index) => {
-        return msg.type === 'text' || msg.type === 'thinking' ? (
+        return msg.type === 'text' || msg.type === 'thinking' || msg.type === 'websearch' ? (
           <MessageRenderer
             key={index}
             msg={msg}

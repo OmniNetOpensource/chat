@@ -5,8 +5,8 @@ import Preview from '../Preview/Preview';
 import CopyIcon from '../Icons/CopyIcon';
 import CheckIcon from '../Icons/CheckIcon';
 import RedoIcon from '../Icons/RedoIcon';
-import { useResponsive } from '@/app/lib/hooks/useResponsive';
-import { useChatStore } from '@/app/lib/store/useChatStore';
+import { useResponsive } from '@/lib/hooks/useResponsive';
+import { useChatStore } from '@/lib/store/useChatStore';
 import EditIcon from '../Icons/EditIcon';
 import ChatInput from './ChatInput';
 

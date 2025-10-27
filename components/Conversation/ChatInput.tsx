@@ -1,10 +1,10 @@
 'use client';
 import React, { useState, type ChangeEvent, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { useResponsive } from '@/app/lib/hooks/useResponsive';
-import { useFileUpload } from '@/app/lib/hooks/useFileUpload';
-import { useChatStore } from '@/app/lib/store/useChatStore';
-import { type MessageBlock, type UserMessage } from '@/app/lib/types';
+import { useResponsive } from '@/lib/hooks/useResponsive';
+import { useFileUpload } from '@/lib/hooks/useFileUpload';
+import { useChatStore } from '@/lib/store/useChatStore';
+import { type MessageBlock, type UserMessage } from '@/lib/types';
 import CloseIcon from '../Icons/CloseIcon';
 import LoadingIcon from '../Icons/LoadingIcon';
 import UpArrowIcon from '../Icons/UpArrowIcon';

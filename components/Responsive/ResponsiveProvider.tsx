@@ -1,6 +1,6 @@
 'use client';
 
-import { useResponsiveStore } from "@/app/lib/store/useResponsiveStore";
+import { useResponsiveStore } from "@/lib/store/useResponsiveStore";
 import { useEffect,type ReactNode } from "react";
 
 

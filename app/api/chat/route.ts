@@ -1,8 +1,8 @@
 import { google } from '@ai-sdk/google';
-import { convertToModelMessages, streamText, type UIMessage } from 'ai';
+import { convertToModelMessages, streamText, type JSONValue, type UIMessage } from 'ai';
 import { NextRequest } from 'next/server';
 
-import type { MessageBlock } from '@/app/lib/types';
+import type { MessageBlock } from '@/lib/types';
 
 const DEFAULT_MODEL = 'gemini-2.5-flash';
 const SSE_HEADERS: Record<string, string> = {
@@ -168,6 +168,13 @@ export async function POST(req: NextRequest) {
   let payload: {
     messages?: IncomingMessage[];
     model?: string;
+    enableSearch?: boolean;
+    thinking?:
+      | boolean
+      | {
+          includeThoughts?: boolean;
+          budget?: number;
+        };
   };
 
   try {
@@ -177,7 +184,7 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400 });
   }
 
-  const { messages, model } = payload ?? {};
+  const { messages, model, enableSearch, thinking } = payload ?? {};
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return new Response(JSON.stringify({ error: 'Missing messages in request body' }), {
@@ -197,6 +204,36 @@ export async function POST(req: NextRequest) {
     ? requestedModel.slice('google/'.length)
     : requestedModel;
 
+  const useSearchTools = enableSearch !== false;
+  const tools = useSearchTools
+    ? ({
+        google_search: google.tools.googleSearch({}),
+        url_context: google.tools.urlContext({}),
+      } as Record<string, unknown>)
+    : undefined;
+
+  let providerOptions: Record<string, Record<string, JSONValue>> | undefined;
+  if (thinking !== false) {
+    const thinkingOptions = thinking && typeof thinking === 'object' ? thinking : undefined;
+
+    const includeThoughts =
+      (typeof thinkingOptions?.includeThoughts === 'boolean'
+        ? thinkingOptions.includeThoughts
+        : undefined) ?? true;
+    const budget =
+      typeof thinkingOptions?.budget === 'number' && thinkingOptions.budget > 0
+        ? thinkingOptions.budget
+        : undefined;
+    providerOptions = {
+      google: {
+        thinkingConfig: {
+          ...(budget !== undefined ? { thinkingBudget: budget } : {}),
+          includeThoughts,
+        },
+      },
+    } satisfies Record<string, Record<string, JSONValue>>;
+  }
+
   let result: ReturnType<typeof streamText>;
 
   try {
@@ -204,6 +241,8 @@ export async function POST(req: NextRequest) {
       model: google(modelId),
       system: systemPrompt,
       messages: convertToModelMessages(uiMessages),
+      ...(tools ? { tools: tools as any } : {}),
+      ...(providerOptions ? { providerOptions } : {}),
       abortSignal: req.signal,
     });
   } catch (error) {
@@ -234,6 +273,28 @@ export async function POST(req: NextRequest) {
 
       try {
         for await (const part of result.fullStream) {
+          console.log(part, '\nbuffer\n');
+          if (part.type === 'source') {
+            const url = 'url' in part ? part.url : undefined;
+            const sourcePayload = {
+              id: part.id ?? crypto.randomUUID(),
+              title: part.title,
+              url,
+              sourceType: part.sourceType,
+            };
+
+            send({
+              choices: [
+                {
+                  delta: {
+                    source: sourcePayload,
+                  },
+                },
+              ],
+            });
+            continue;
+          }
+
           if (
             part.type === 'reasoning-delta' &&
             typeof part.text === 'string' &&

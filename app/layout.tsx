@@ -1,7 +1,7 @@
 import { ThemeProvider } from 'next-themes';
 import './globals.css';
-import { ResponsiveProvider } from './components/Responsive/ResponsiveProvider';
-import Sidebar from './components/Sidebar';
+import { ResponsiveProvider } from '@/components/Responsive/ResponsiveProvider';
+import Sidebar from '@/components/Sidebar';
 
 export const metadata = {
   title: 'AI studio',

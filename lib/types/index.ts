@@ -8,6 +8,9 @@ export interface WebsearchBlock {
   id: string;
   type: 'websearch';
   content: string;
+  title?: string;
+  url?: string;
+  sourceType?: string;
 }
 
 export interface ImageBlock {

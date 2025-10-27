@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { saveConversation, getConversation } from '../services/indexedDBService';
-import { type MessageType, type UserMessage } from '../types';
+import { type MessageType, type UserMessage, type WebsearchBlock } from '../types';
 
 export {
   DatabaseError,
@@ -95,7 +95,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        console.log(buffer, 'buffer\n');
+        //console.log(buffer, 'buffer\n');
 
         while (true) {
           const lineEnd = buffer.indexOf('\n');
@@ -109,10 +109,61 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
             if (data === '[DONE]') break;
 
             try {
-              const parsed = JSON.parse(data);
+              const parsed = JSON.parse(data) as {
+                choices?: Array<{
+                  delta?: {
+                    reasoning?: unknown;
+                    content?: unknown;
+                    source?: {
+                      id?: string;
+                      title?: string;
+                      url?: string;
+                      sourceType?: string;
+                    };
+                  };
+                }>;
+              };
 
-              const thinking = parsed.choices[0].delta.reasoning || '';
-              const answering = parsed.choices[0].delta.content || '';
+              const delta = parsed.choices?.[0]?.delta ?? {};
+              const thinking = typeof delta.reasoning === 'string' ? delta.reasoning : '';
+              const answering = typeof delta.content === 'string' ? delta.content : '';
+              const source = delta.source;
+
+              /*               if (source) {
+                set((state) => {
+                  const messages = [...state.messages];
+                  if (messages.length === 0 || messages[messages.length - 1].role !== 'assistant') {
+                    messages.push({
+                      role: 'assistant',
+                      content: [],
+                    });
+                  }
+
+                  const latestMessage = messages[messages.length - 1].content;
+                  const sourceId = source.id ?? crypto.randomUUID();
+                  const existingIndex = latestMessage.findIndex(
+                    (block) => block.type === 'websearch' && block.id === sourceId,
+                  );
+
+                  const nextBlock: WebsearchBlock = {
+                    id: sourceId,
+                    type: 'websearch',
+                    content: source.url ?? '',
+                    title: source.title ?? source.url ?? 'Search result',
+                    url: source.url,
+                    sourceType: source.sourceType,
+                  };
+
+                  if (existingIndex >= 0) {
+                    latestMessage[existingIndex] = nextBlock;
+                  } else {
+                    latestMessage.push(nextBlock);
+                  }
+
+                  return { messages };
+                });
+                continue;
+              } */
 
               set((state) => {
                 const messages = [...state.messages];

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { useSidebarState } from '@/app/lib/store/useSidebarState';
-import { useResponsive } from '@/app/lib/hooks/useResponsive';
+import { useSidebarState } from '@/lib/store/useSidebarState';
+import { useResponsive } from '@/lib/hooks/useResponsive';
 
 import ConversationHistory from './ConversationHistory';
 import SidebarMenu from './SidebarMenu';

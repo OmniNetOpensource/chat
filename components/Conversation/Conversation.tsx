@@ -3,7 +3,7 @@
 import React from 'react';
 import MessageList from './MessageList';
 import ChatInput from './ChatInput';
-import { useChatStore } from '@/app/lib/store/useChatStore';
+import { useChatStore } from '@/lib/store/useChatStore';
 
 const Conversation: React.FC = () => {
   const { messages, setIsDragging } = useChatStore();

@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect } from 'react';
-import Main from './components/Main/Main';
-import { useChatStore } from './lib/store/useChatStore';
+import Main from '@/components/Main/Main';
+import { useChatStore } from '@/lib/store/useChatStore';
 
 export default function HomePage() {
   const { clear } = useChatStore();
