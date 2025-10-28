@@ -182,7 +182,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
                     const updatedBlock = {
                       ...lastBlock,
                       finished: true,
-                      time: Date.now() - lastBlock.time,
+                      time: Math.round((Date.now() - lastBlock.time) / 1000),
                     };
                     const newContent = [...assistantMessage.slice(0, -1), updatedBlock];
                     const lastMessage = messages[messages.length - 1];
