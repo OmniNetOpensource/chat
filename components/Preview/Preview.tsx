@@ -18,7 +18,7 @@ interface PreviewProps {
 
 const MessageRenderer = memo(({ msg }: { msg: MessageBlock }) => {
   const [isExpand, setIsExpand] = useState<boolean>(false);
-  const { currentThinkingId, status } = useChatStore();
+  const { status } = useChatStore();
 
   const contentText = 'text' in msg ? msg.text : '';
   const processedText = contentText.replace(/(\$\$[\s\S]*?\$\$)/g, '\n$1\n');
@@ -43,7 +43,7 @@ const MessageRenderer = memo(({ msg }: { msg: MessageBlock }) => {
           }}
           className="cursor-pointer"
         >
-          {msg.id === currentThinkingId && status === 'streaming' ? (
+          {!msg.finished ? (
             <SlideLight text={`Thinking...`} />
           ) : (
             <span>Thought for {msg.time} s</span>

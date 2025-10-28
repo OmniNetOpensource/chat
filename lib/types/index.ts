@@ -30,6 +30,7 @@ export interface ThinkingBlock {
   type: 'thinking';
   text: string;
   time: number;
+  finished: boolean;
 }
 
 export type MessageBlock = TextBlock | WebsearchBlock | ImageBlock | FileBlock | ThinkingBlock;

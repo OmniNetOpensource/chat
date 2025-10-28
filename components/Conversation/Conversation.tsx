@@ -8,7 +8,7 @@ import { useChatStore } from '@/lib/store/useChatStore';
 const Conversation: React.FC = () => {
   const { messages, setIsDragging } = useChatStore();
 
-  const handleDragEnter = (event: React.DragEvent<HTMLDivElement>) => {
+  const handleDragEnter = () => {
     setIsDragging(true);
   };
 

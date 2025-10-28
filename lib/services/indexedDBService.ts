@@ -45,6 +45,7 @@ async function openDatabase(): Promise<IDBPDatabase> {
                     type: 'thinking',
                     text: block.text || '',
                     time: block.time || 0,
+                    finished: true,
                   };
 
                 case 'text':

@@ -241,7 +241,7 @@ export async function POST(req: NextRequest) {
       model: google(modelId),
       system: systemPrompt,
       messages: convertToModelMessages(uiMessages),
-      ...(tools ? { tools: tools as any } : {}),
+      ...(tools ? { tools: tools as any } : {}), // eslint-disable-line @typescript-eslint/no-explicit-any
       ...(providerOptions ? { providerOptions } : {}),
       abortSignal: req.signal,
     });
@@ -273,56 +273,7 @@ export async function POST(req: NextRequest) {
 
       try {
         for await (const part of result.fullStream) {
-          console.log(part, '\nbuffer\n');
-          if (part.type === 'source') {
-            const url = 'url' in part ? part.url : undefined;
-            const sourcePayload = {
-              id: part.id ?? crypto.randomUUID(),
-              title: part.title,
-              url,
-              sourceType: part.sourceType,
-            };
-
-            send({
-              choices: [
-                {
-                  delta: {
-                    source: sourcePayload,
-                  },
-                },
-              ],
-            });
-            continue;
-          }
-
-          if (
-            part.type === 'reasoning-delta' &&
-            typeof part.text === 'string' &&
-            part.text.length > 0
-          ) {
-            send({
-              choices: [
-                {
-                  delta: {
-                    reasoning: part.text,
-                  },
-                },
-              ],
-            });
-            continue;
-          }
-
-          if (part.type === 'text-delta' && typeof part.text === 'string' && part.text.length > 0) {
-            send({
-              choices: [
-                {
-                  delta: {
-                    content: part.text,
-                  },
-                },
-              ],
-            });
-          }
+          send(part);
         }
       } catch (error) {
         if ((error as Error).name === 'AbortError') {

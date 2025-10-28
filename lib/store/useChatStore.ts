@@ -2,7 +2,7 @@
 
 import { create } from 'zustand';
 import { saveConversation, getConversation } from '../services/indexedDBService';
-import { type MessageType, type UserMessage, type WebsearchBlock } from '../types';
+import { type MessageBlock, type MessageType, type UserMessage } from '../types';
 
 export {
   DatabaseError,
@@ -22,7 +22,7 @@ interface UseChatStoreProps {
   status: 'ready' | 'streaming';
   clear: () => void;
   error: string | null;
-  currentThinkingId: string;
+  currentTextId: string;
 
   currentConversationId: string | null;
   setCurrentConversationId: (id: string) => void;
@@ -37,6 +37,24 @@ interface UseChatStoreProps {
   setIsDragging: (value: boolean) => void;
 }
 
+function ensureAssistantMessage(state: UseChatStoreProps): {
+  messages: MessageType[];
+  assistantMessage: MessageBlock[];
+} {
+  const messages = [...state.messages];
+  if (messages.length === 0 || messages[messages.length - 1].role !== 'assistant') {
+    messages.push({
+      role: 'assistant',
+      content: [],
+    });
+  }
+
+  return {
+    messages,
+    assistantMessage: messages[messages.length - 1].content,
+  };
+}
+
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   messages: [],
   sendMessage: async (index, message) => {
@@ -46,7 +64,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       messages: [...state.messages.slice(0, index), message],
       status: 'streaming',
       controller: controller,
-      currentThinkingId: '',
+      currentTextId: '',
     }));
 
     const title = 'title';
@@ -87,7 +105,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       }
 
       const decoder = new TextDecoder();
-
       let buffer = '';
 
       while (true) {
@@ -95,133 +112,132 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         if (done) break;
 
         buffer += decoder.decode(value, { stream: true });
-        //console.log(buffer, 'buffer\n');
 
-        while (true) {
-          const lineEnd = buffer.indexOf('\n');
-          if (lineEnd === -1) break;
+        // 按照 SSE 格式分割（data: {...}\n\n）
+        const lines = buffer.split('\n\n');
+        buffer = lines.pop() || ''; // 保留不完整的最后一行
 
-          const line = buffer.slice(0, lineEnd).trim();
-          buffer = buffer.slice(lineEnd + 1);
+        for (const line of lines) {
+          if (!line.trim()) continue;
 
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') break;
+          // 移除 "data: " 前缀
+          const dataStr = line.replace(/^data:\s*/, '');
+          if (dataStr === '[DONE]') break;
 
-            try {
-              const parsed = JSON.parse(data) as {
-                choices?: Array<{
-                  delta?: {
-                    reasoning?: unknown;
-                    content?: unknown;
-                    source?: {
-                      id?: string;
-                      title?: string;
-                      url?: string;
-                      sourceType?: string;
-                    };
-                  };
-                }>;
-              };
+          try {
+            const data = JSON.parse(dataStr);
 
-              const delta = parsed.choices?.[0]?.delta ?? {};
-              const thinking = typeof delta.reasoning === 'string' ? delta.reasoning : '';
-              const answering = typeof delta.content === 'string' ? delta.content : '';
-              const source = delta.source;
+            if (data.type === 'finish') break;
 
-              /*               if (source) {
+            switch (data.type) {
+              case 'reasoning-start': {
+                const thinkingId = data.id;
                 set((state) => {
-                  const messages = [...state.messages];
-                  if (messages.length === 0 || messages[messages.length - 1].role !== 'assistant') {
-                    messages.push({
-                      role: 'assistant',
-                      content: [],
-                    });
-                  }
+                  const { messages, assistantMessage } = ensureAssistantMessage(state);
+                  assistantMessage.push({
+                    id: thinkingId,
+                    type: 'thinking',
+                    text: '',
+                    time: Date.now(),
+                    finished: false,
+                  });
+                  return { messages };
+                });
+                break;
+              }
 
-                  const latestMessage = messages[messages.length - 1].content;
-                  const sourceId = source.id ?? crypto.randomUUID();
-                  const existingIndex = latestMessage.findIndex(
-                    (block) => block.type === 'websearch' && block.id === sourceId,
-                  );
+              case 'reasoning-delta': {
+                set((state) => {
+                  const { messages, assistantMessage } = ensureAssistantMessage(state);
+                  const lastBlock = assistantMessage[assistantMessage.length - 1];
 
-                  const nextBlock: WebsearchBlock = {
-                    id: sourceId,
-                    type: 'websearch',
-                    content: source.url ?? '',
-                    title: source.title ?? source.url ?? 'Search result',
-                    url: source.url,
-                    sourceType: source.sourceType,
-                  };
+                  if (lastBlock?.type === 'thinking') {
+                    // 创建一个新的 block 对象来替代旧的
+                    const updatedBlock = {
+                      ...lastBlock,
+                      text: lastBlock.text + (data.text || ''),
+                    };
 
-                  if (existingIndex >= 0) {
-                    latestMessage[existingIndex] = nextBlock;
-                  } else {
-                    latestMessage.push(nextBlock);
+                    // 创建一个新的 content 数组，并用新 block 替换最后一个元素
+                    const newContent = [...assistantMessage.slice(0, -1), updatedBlock];
+
+                    // 替换 messages 数组中最后一个元素的 content
+                    const lastMessage = messages[messages.length - 1];
+                    if (lastMessage.role === 'assistant') {
+                      const updatedMessage = { ...lastMessage, content: newContent };
+                      return { messages: [...messages.slice(0, -1), updatedMessage] };
+                    }
                   }
 
                   return { messages };
                 });
-                continue;
-              } */
+                break;
+              }
 
-              set((state) => {
-                const messages = [...state.messages];
-
-                if (messages.length === 0 || messages[messages.length - 1].role !== 'assistant') {
-                  messages.push({
-                    role: 'assistant',
-                    content: [],
-                  });
-                }
-
-                const latestMessage = messages[messages.length - 1].content;
-                const latestContent = latestMessage[latestMessage.length - 1] || {};
-
-                let newThinkingId = state.currentThinkingId;
-
-                if (thinking) {
-                  const isLastThinking = latestContent && latestContent.type === 'thinking';
-
-                  if (isLastThinking) {
-                    latestContent.text += thinking;
-                  } else {
-                    const newId = crypto.randomUUID();
-                    latestMessage.push({
-                      id: newId,
-                      type: 'thinking',
-                      text: thinking,
-                      time: Date.now(),
-                    });
-                    newThinkingId = newId;
-                  }
-                }
-
-                if (answering) {
-                  const isLastContent = latestContent && latestContent.type === 'text';
-
-                  if (isLastContent) {
-                    latestContent.text += answering;
-                  } else {
-                    if (latestContent && latestContent.type === 'thinking') {
-                      latestContent.time = parseFloat(
-                        ((Date.now() - latestContent.time) / 1000).toFixed(0),
-                      );
+              case 'reasoning-end': {
+                set((state) => {
+                  const { messages, assistantMessage } = ensureAssistantMessage(state);
+                  const lastBlock = assistantMessage[assistantMessage.length - 1];
+                  if (lastBlock?.type === 'thinking') {
+                    const updatedBlock = {
+                      ...lastBlock,
+                      finished: true,
+                      time: Date.now() - lastBlock.time,
+                    };
+                    const newContent = [...assistantMessage.slice(0, -1), updatedBlock];
+                    const lastMessage = messages[messages.length - 1];
+                    if (lastMessage.role === 'assistant') {
+                      const updatedMessage = { ...lastMessage, content: newContent };
+                      return { messages: [...messages.slice(0, -1), updatedMessage] };
                     }
-                    latestMessage.push({
-                      id: crypto.randomUUID(),
-                      type: 'text',
-                      text: answering,
-                    });
-                    newThinkingId = '';
                   }
-                }
 
-                return { messages, currentThinkingId: newThinkingId };
-              });
-            } catch (e) {
-              console.error('Error parsing stream data:', e);
+                  return { messages };
+                });
+                break;
+              }
+
+              case 'text-start': {
+                const textId = data.id;
+                set((state) => {
+                  const { messages, assistantMessage } = ensureAssistantMessage(state);
+                  assistantMessage.push({
+                    id: textId,
+                    type: 'text',
+                    text: '',
+                  });
+                  return { messages, currentTextId: textId };
+                });
+                break;
+              }
+
+              case 'text-delta': {
+                set((state) => {
+                  const { messages, assistantMessage } = ensureAssistantMessage(state);
+                  const lastBlock = assistantMessage[assistantMessage.length - 1];
+                  if (lastBlock?.type === 'text') {
+                    const updatedBlock = {
+                      ...lastBlock,
+                      text: lastBlock.text + (data.text || ''),
+                    };
+                    const newContent = [...assistantMessage.slice(0, -1), updatedBlock];
+                    const lastMessage = messages[messages.length - 1];
+                    if (lastMessage.role === 'assistant') {
+                      const updatedMessage = { ...lastMessage, content: newContent };
+                      return { messages: [...messages.slice(0, -1), updatedMessage] };
+                    }
+                  }
+                  return { messages };
+                });
+                break;
+              }
+
+              default:
+                // Ignore unknown types
+                break;
             }
+          } catch (e) {
+            console.warn('Failed to parse SSE chunk:', dataStr, e);
           }
         }
       }
@@ -230,7 +246,11 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         console.error('Request error:', error);
       }
     } finally {
-      set(() => ({ status: 'ready', controller: undefined }));
+      set(() => ({
+        status: 'ready',
+        controller: undefined,
+        currentTextId: '',
+      }));
       const existing = await getConversation(get().currentConversationId as string);
       if (existing) {
         await saveConversation({
@@ -264,11 +284,11 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       status: 'ready',
       controller: undefined,
       currentConversationId: null,
-      currentThinkingId: '',
+      currentTextId: '',
     }));
   },
   currentMessage: [],
-  currentThinkingId: '',
+  currentTextId: '',
 
   editing: -1,
 

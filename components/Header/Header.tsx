@@ -2,7 +2,6 @@
 
 import Link from 'next/link';
 import NewChatIcon from '../Icons/NewChatIcon';
-import ModelSelect from './ModelSelect';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import SystemPrompt from './SystemPrompt';
 
@@ -17,7 +16,6 @@ const Header = () => {
                         px-4"
     >
       <div className={`flex-1 flex items-center ${isMobile ? 'justify-center' : 'justify-start'}`}>
-        <ModelSelect />
         <SystemPrompt />
       </div>
       <div></div>

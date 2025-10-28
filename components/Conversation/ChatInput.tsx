@@ -5,6 +5,7 @@ import { useResponsive } from '@/lib/hooks/useResponsive';
 import { useFileUpload } from '@/lib/hooks/useFileUpload';
 import { useChatStore } from '@/lib/store/useChatStore';
 import { type MessageBlock, type UserMessage } from '@/lib/types';
+import ModelSelect from '../Header/ModelSelect';
 import CloseIcon from '../Icons/CloseIcon';
 import LoadingIcon from '../Icons/LoadingIcon';
 import UpArrowIcon from '../Icons/UpArrowIcon';
@@ -185,19 +186,22 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
           style={{ height: '24px' }}
         />
         <div className="my-0 mx-0 w-full h-[32px] flex flex-row gap-1 justify-between items-center">
-          <button
-            onClick={handleFileUploadClick}
-            className={`cursor-pointer p-1 rounded-md hover:bg-hoverbg transition-colors`}
-          >
-            <Paperclip />
-          </button>
-          <input
-            ref={fileUploadRef}
-            type="file"
-            accept="image/*,application/pdf"
-            className="hidden"
-            onChange={addFilesFromInput}
-          />
+          <div className="flex flex-row items-center gap-1">
+            <button
+              onClick={handleFileUploadClick}
+              className="cursor-pointer p-1 rounded-md hover:bg-hoverbg transition-colors"
+            >
+              <Paperclip />
+            </button>
+            <input
+              ref={fileUploadRef}
+              type="file"
+              accept="image/*,application/pdf"
+              className="hidden"
+              onChange={addFilesFromInput}
+            />
+            <ModelSelect />
+          </div>
           <button
             className={`bg-primary ${
               canClick ? 'cursor-pointer opacity-100' : 'cursor-not-allowed opacity-10'
