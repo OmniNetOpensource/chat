@@ -204,7 +204,7 @@ export async function POST(req: NextRequest) {
     ? requestedModel.slice('google/'.length)
     : requestedModel;
 
-  const useSearchTools = enableSearch !== false;
+  const useSearchTools = enableSearch === true;
   const tools = useSearchTools
     ? ({
         google_search: google.tools.googleSearch({}),
@@ -280,6 +280,48 @@ export async function POST(req: NextRequest) {
           console.warn('Stream aborted by client.');
         } else {
           console.error('Error while streaming response:', error);
+          // 提取错误信息
+          let errorMessage = 'An error occurred while streaming';
+
+          // 尝试从 AI SDK 错误中提取结构化信息
+          if (error && typeof error === 'object') {
+            const err = error as any; // eslint-disable-line @typescript-eslint/no-explicit-any
+
+            // 检查 responseBody 中的错误信息
+            if (err.responseBody) {
+              try {
+                const parsed = JSON.parse(err.responseBody);
+                if (parsed.error?.message) {
+                  errorMessage = parsed.error.message;
+                }
+              } catch {
+                // 解析失败，使用默认消息
+              }
+            }
+
+            // 或者从 lastError 中提取
+            if (!errorMessage && err.lastError?.responseBody) {
+              try {
+                const parsed = JSON.parse(err.lastError.responseBody);
+                if (parsed.error?.message) {
+                  errorMessage = parsed.error.message;
+                }
+              } catch {
+                // 解析失败
+              }
+            }
+
+            // 最后尝试 message 属性
+            if (errorMessage === 'An error occurred while streaming' && err.message) {
+              errorMessage = err.message;
+            }
+          }
+
+          // 发送错误事件给前端
+          send({
+            type: 'error',
+            error: errorMessage,
+          });
         }
       } finally {
         sendDone();

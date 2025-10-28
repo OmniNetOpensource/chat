@@ -153,3 +153,41 @@ app/
 ---
 
 请用朴实、平静、耐心的语言回答我的问题，就像一个有经验的朋友在认真地帮我理解一个话题。语气要温和、鼓励，让人感到你愿意花时间把事情讲清楚。不要使用夸张的形容词和营销式的表达，而是具体说明实际情况即可。
+
+## Error Message Display Implementation (2025-10-28)
+
+### Problem
+
+When the Gemini API returns error responses (e.g., 503 "The model is overloaded"), the error information was not being shown to users. The error was only captured in the store's error state but never displayed in the UI.
+
+### Solution: Display Errors as Assistant Messages
+
+#### 1. API Route Enhancement (`app/api/chat/route.ts`)
+
+- Added error extraction logic in the stream error handler
+- Attempts to parse error messages from multiple sources:
+  - Primary: `error.responseBody` → `error.message`
+  - Fallback 1: `error.lastError.responseBody` → `error.message`
+  - Fallback 2: `error.message` property
+- Sends extracted error message via SSE as: `{type: 'error', error: 'error message'}`
+
+#### 2. Store Layer Enhancement (`lib/store/useChatStore.ts`)
+
+- Clear error state at the beginning of `sendMessage` to avoid stale errors
+- Added error case handler in SSE stream processing:
+  - Creates text block with `❌ Error: ${error_message}`
+  - Adds error message to the assistant message content
+  - Sets `error` and `status: 'ready'` state
+  - Cancels the reader to stop stream processing
+
+#### 3. User Experience
+
+- Error messages now appear naturally in the conversation flow
+- Prefixed with ❌ emoji for visual distinction
+- User can see exactly when and where the error occurred
+- Example: "❌ Error: The model is overloaded. Please try again later."
+
+### Files Modified
+
+- `app/api/chat/route.ts` (lines 283-324)
+- `lib/store/useChatStore.ts` (lines 67-72, 242-257)

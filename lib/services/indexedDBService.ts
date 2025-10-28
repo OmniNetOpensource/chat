@@ -13,6 +13,7 @@ export interface ConversationRecord {
   updatedAt: number;
   systemPrompt: string;
   model: string;
+  enableSearch?: boolean;
 }
 
 async function openDatabase(): Promise<IDBPDatabase> {

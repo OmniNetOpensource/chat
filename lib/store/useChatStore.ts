@@ -35,6 +35,9 @@ interface UseChatStoreProps {
 
   isDragging: boolean;
   setIsDragging: (value: boolean) => void;
+
+  enableSearch: boolean;
+  setEnableSearch: (enabled: boolean) => void;
 }
 
 function ensureAssistantMessage(state: UseChatStoreProps): {
@@ -57,6 +60,7 @@ function ensureAssistantMessage(state: UseChatStoreProps): {
 
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   messages: [],
+  enableSearch: false,
   sendMessage: async (index, message) => {
     const controller = new AbortController();
 
@@ -65,6 +69,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       status: 'streaming',
       controller: controller,
       currentTextId: '',
+      error: null,
     }));
 
     const title = 'title';
@@ -76,6 +81,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       updatedAt: Date.now(),
       model: get().model,
       systemPrompt: get().systemPrompt,
+      enableSearch: get().enableSearch,
     });
 
     try {
@@ -87,6 +93,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         body: JSON.stringify({
           model: get().model,
           messages: [{ role: 'system', content: get().systemPrompt }, ...get().messages],
+          enableSearch: get().enableSearch,
         }),
         signal: controller.signal,
       });
@@ -232,6 +239,25 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
                 break;
               }
 
+              case 'error': {
+                set((state) => {
+                  const { messages, assistantMessage } = ensureAssistantMessage(state);
+                  assistantMessage.push({
+                    id: crypto.randomUUID(),
+                    type: 'text',
+                    text: `❌ Error: ${data.error || data.message || 'An error occurred'}`,
+                  });
+                  return {
+                    messages,
+                    error: data.error || data.message || 'An error occurred',
+                    status: 'ready',
+                  };
+                });
+                // 错误发生后停止处理流
+                reader.cancel();
+                break;
+              }
+
               default:
                 // Ignore unknown types
                 break;
@@ -259,6 +285,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
           updatedAt: Date.now(),
           model: get().model,
           systemPrompt: get().systemPrompt,
+          enableSearch: get().enableSearch,
         });
       }
     }
@@ -301,6 +328,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     if (!currentConversation) {
       return null;
     }
+    const enableSearch = currentConversation.enableSearch ?? false;
     set(() => ({
       messages: currentConversation.messages,
       currentConversationId: currentConversation.id,
@@ -316,7 +344,13 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
 请主动预见可能产生歧义或困惑的地方，在讲到这些点时停下来做个说明。比如某个术语有多种含义，或者某个步骤容易被误解，就提前澄清。用具体例子和场景来说明抽象概念，指出新手常见的误区和容易忽略的细节。可以适当使用类比，但要确保类比准确，不要为了简化而丢失关键信息。
 
 默认使用完整句子与成段表述；少使用要点式列表。`,
+      enableSearch,
     }));
+    try {
+      localStorage.setItem('enableSearch', JSON.stringify(enableSearch));
+    } catch (error) {
+      console.warn('Failed to persist enableSearch from conversation', error);
+    }
     return currentConversation.id;
   },
   error: null,
@@ -344,5 +378,13 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     set(() => ({
       isDragging: value,
     }));
+  },
+  setEnableSearch: (enabled) => {
+    set(() => ({ enableSearch: enabled }));
+    try {
+      localStorage.setItem('enableSearch', JSON.stringify(enabled));
+    } catch (error) {
+      console.warn('Failed to persist enableSearch preference', error);
+    }
   },
 }));

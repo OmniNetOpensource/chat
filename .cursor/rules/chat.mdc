@@ -3,3 +3,5 @@ description:
 globs:
 alwaysApply: false
 ---
+
+- 不要运行 type-check 和 lint和pnpm dev
