@@ -15,6 +15,7 @@ const SystemPrompt = () => {
 
   useEffect(() => {
     localStorage.setItem('systemprompt', systemPrompt);
+    setSystemPrompt(systemPrompt);
   }, [systemPrompt]);
 
   return (

@@ -1,34 +1,41 @@
 'use client';
 
-import Link, { type LinkProps } from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useSidebarState } from '@/lib/store/useSidebarState';
-
-interface StyledLinkProps {
-  href: LinkProps['href'];
-  children: React.ReactNode;
-}
-
-const StyledLink: React.FC<StyledLinkProps> = ({ href, children }) => {
-  const fixedClassName = `w-full hover:bg-hoverbg bg-transparent flex flex-row items-center gap-2 rounded-md whitespace-nowrap overflow-hidden`;
-
-  return (
-    <Link
-      href={href}
-      className={fixedClassName}
-    >
-      {children}
-    </Link>
-  );
-};
+import { useChatStore } from '@/lib/store/useChatStore';
+import { SquarePen } from 'lucide-react';
 
 const SidebarMenu = () => {
+  const router = useRouter();
   const { isSidebarOpen } = useSidebarState();
-
+  const clearChat = useChatStore((state) => state.clear);
+  const handleNewChat = () => {
+    clearChat();
+    router.push('/');
+  };
   return (
-    <div className="w-full flex flex-col gap-1 items-start">
-      {/* Menu items can be added here in the future */}
+    <div className="w-full flex flex-col gap-1 items-start mb-3 ">
+      <button
+        type="button"
+        onClick={handleNewChat}
+        className="w-full hover:bg-hoverbg bg-transparent gap-2 rounded-md whitespace-nowrap overflow-hidden px-2 py-1
+        flex flex-row items-center justify-start
+        transition-all duration-300 ease-in-out "
+        aria-label="Start new chat"
+      >
+        <SquarePen
+          className="flex-shrink-0"
+          width={20}
+          height={20}
+        />
+        <span
+          className={`
+          ${isSidebarOpen ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-2'}`}
+        >
+          New Chat
+        </span>
+      </button>
     </div>
   );
 };
-
 export default SidebarMenu;

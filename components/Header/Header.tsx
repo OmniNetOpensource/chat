@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import NewChatIcon from '../Icons/NewChatIcon';
+import { SquarePen } from 'lucide-react';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import SystemPrompt from './SystemPrompt';
 import SlideLight from '@/components/SlideLight/SlideLight';
@@ -30,7 +30,7 @@ const Header = () => {
                             flex justify-center items-center"
         aria-label="New chat"
       >
-        <NewChatIcon
+        <SquarePen
           width={24}
           height={24}
         />

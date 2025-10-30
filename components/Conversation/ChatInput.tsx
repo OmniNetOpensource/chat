@@ -110,20 +110,6 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
   };
 
   useEffect(() => {
-    try {
-      const storedValue = localStorage.getItem('enableSearch');
-      if (storedValue !== null) {
-        const parsedValue = JSON.parse(storedValue) as unknown;
-        if (typeof parsedValue === 'boolean' && parsedValue !== enableSearch) {
-          setEnableSearch(parsedValue);
-        }
-      }
-    } catch (error) {
-      console.warn('Failed to read enableSearch preference from localStorage', error);
-    }
-  }, [enableSearch, setEnableSearch]);
-
-  useEffect(() => {
     const textarea = textareaRef.current;
     if (!textarea) {
       return;

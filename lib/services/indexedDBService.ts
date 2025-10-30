@@ -1,4 +1,4 @@
-import { Content, type MessageType, Message } from '../types';
+import type { Content, MessageType, Message } from '../types';
 import { openDB, type IDBPDatabase } from 'idb';
 
 const DB_NAME = 'ChatAppDB';
@@ -13,7 +13,6 @@ export interface ConversationRecord {
   updatedAt: number;
   systemPrompt: string;
   model: string;
-  enableSearch?: boolean;
 }
 
 async function openDatabase(): Promise<IDBPDatabase> {

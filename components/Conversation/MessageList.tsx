@@ -7,7 +7,7 @@ import CheckIcon from '../Icons/CheckIcon';
 import RedoIcon from '../Icons/RedoIcon';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import { useChatStore } from '@/lib/store/useChatStore';
-import EditIcon from '../Icons/EditIcon';
+import { PencilRuler } from 'lucide-react';
 import ChatInput from './ChatInput';
 
 const MessageList: React.FC = () => {
@@ -144,7 +144,7 @@ const MessageList: React.FC = () => {
                     } transition-all duration-300 ease-in-out hover:bg-hoverbg rounded-md flex justify-center items-center cursor-pointer`}
                     onClick={() => handleStartEdit(index)}
                   >
-                    <EditIcon
+                    <PencilRuler
                       width={isMobile ? 20 : 16}
                       height={isMobile ? 20 : 16}
                     />
