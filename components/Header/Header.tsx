@@ -4,9 +4,12 @@ import Link from 'next/link';
 import NewChatIcon from '../Icons/NewChatIcon';
 import { useResponsive } from '@/lib/hooks/useResponsive';
 import SystemPrompt from './SystemPrompt';
+import SlideLight from '@/components/SlideLight/SlideLight';
+import { useChatStore } from '@/lib/store/useChatStore';
 
 const Header = () => {
   const { isMobile } = useResponsive();
+  const { conversationTitle } = useChatStore();
 
   return (
     <div
@@ -18,7 +21,6 @@ const Header = () => {
       <div className={`flex-1 flex items-center ${isMobile ? 'justify-center' : 'justify-start'}`}>
         <SystemPrompt />
       </div>
-      <div></div>
       <Link
         href="/"
         className="cursor-pointer
@@ -28,7 +30,10 @@ const Header = () => {
                             flex justify-center items-center"
         aria-label="New chat"
       >
-        <NewChatIcon width={24} height={24} />
+        <NewChatIcon
+          width={24}
+          height={24}
+        />
       </Link>
     </div>
   );

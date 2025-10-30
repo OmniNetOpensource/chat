@@ -3,6 +3,7 @@ import { useChatStore } from '@/lib/store/useChatStore';
 import { useEffect, useRef, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import Link from 'next/link';
+import SlideLight from '../SlideLight/SlideLight';
 
 const ConversationHistory = () => {
   const [conversationHistories, setConversationHistories] = useState<ConversationRecord[]>([]);
@@ -61,7 +62,11 @@ const ConversationHistory = () => {
                 ref={virtualizer.measureElement}
                 className="h-fit w-full py-2 px-3 hover:bg-hoverbg rounded-xl flex flex-col items-left justify-center cursor-pointer"
               >
-                <span className="">{conversation.title}</span>
+                {conversation.title === 'new chat' ? (
+                  <SlideLight text={conversation.title} />
+                ) : (
+                  <span className="">{conversation.title}</span>
+                )}
               </Link>
             );
           })}

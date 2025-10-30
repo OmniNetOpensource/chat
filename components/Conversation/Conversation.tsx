@@ -24,7 +24,7 @@ const Conversation: React.FC = () => {
 
   return (
     <div
-      className="relative flex-1 min-h-0"
+      className="relative overflow-auto h-full"
       onDragEnter={handleDragEnter}
       onDragLeave={handleDragLeave}
       onDragOver={handleDragOver}

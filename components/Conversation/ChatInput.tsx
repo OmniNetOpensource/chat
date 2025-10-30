@@ -157,7 +157,7 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
 
   return (
     <div
-      className={`${editing ? 'relative' : 'fixed bottom-1.5 left-1/2 transform -translate-x-1/2'}
+      className={`${editing ? 'relative' : 'absolute bottom-1.5 left-1/2 transform -translate-x-1/2'}
       ${isMobile ? 'w-[95%]' : 'w-[60%]'}
       ${isMobile ? 'px-1.5 py-1.5' : 'px-2 py-2'}
     bg-secondary flex flex-col gap-0 border-none

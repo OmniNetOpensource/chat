@@ -27,6 +27,8 @@ interface UseChatStoreProps {
   currentConversationId: string | null;
   setCurrentConversationId: (id: string) => void;
   loadConversation: (id: string) => Promise<string | null>;
+  conversationTitle: string | null;
+  setConversationTitle: (title: string | null) => void;
 
   model: string;
   setModel: (modelName: string) => void;
@@ -58,9 +60,65 @@ function ensureAssistantMessage(state: UseChatStoreProps): {
   };
 }
 
+function extractTextFromBlocks(blocks: MessageBlock[]): string {
+  return blocks
+    .map((block) => {
+      if (block.type === 'text') {
+        return block.text;
+      }
+      if (block.type === 'websearch') {
+        return block.content;
+      }
+      return '';
+    })
+    .filter((chunk) => chunk && chunk.trim().length > 0)
+    .join('\n')
+    .trim();
+}
+
+async function requestConversationTitle(
+  userMessage: string,
+  assistantMessage: string,
+): Promise<string | null> {
+  try {
+    const response = await fetch('/api/generate-title', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userMessage,
+        assistantMessage,
+      }),
+    });
+
+    const responseText = await response.text();
+
+    if (!response.ok) {
+      console.error(
+        'Failed to generate conversation title:',
+        response.status,
+        response.statusText,
+        responseText,
+      );
+      return null;
+    }
+
+    const title = responseText.trim();
+    return title.length > 0 ? title : null;
+  } catch (error) {
+    console.error('Error generating conversation title', error);
+    return null;
+  }
+}
+
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   messages: [],
+  conversationTitle: null,
   enableSearch: false,
+  setConversationTitle: (title) => {
+    set(() => ({ conversationTitle: title }));
+  },
   sendMessage: async (index, message) => {
     const controller = new AbortController();
 
@@ -70,13 +128,15 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       controller: controller,
       currentTextId: '',
       error: null,
+      conversationTitle: state.messages.length === 0 ? 'new chat' : state.conversationTitle,
     }));
 
-    const title = 'title';
+    const conversationId = get().currentConversationId as string;
+    const conversationTitle = get().conversationTitle ?? 'new chat';
 
     await saveConversation({
-      id: get().currentConversationId as string,
-      title,
+      id: conversationId,
+      title: conversationTitle,
       messages: get().messages,
       updatedAt: Date.now(),
       model: get().model,
@@ -272,22 +332,44 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         console.error('Request error:', error);
       }
     } finally {
+      const conversationId = get().currentConversationId;
+
+      let stateSnapshot = get();
+      const existing = await getConversation(conversationId);
+
+      let updatedTitle = stateSnapshot.conversationTitle ?? existing?.title ?? 'new chat';
+
+      if (stateSnapshot.conversationTitle === 'new chat' && stateSnapshot.messages.length === 2) {
+        const [firstMessage, secondMessage] = stateSnapshot.messages;
+
+        if (firstMessage?.role === 'user' && secondMessage?.role === 'assistant') {
+          const userText = extractTextFromBlocks(firstMessage.content);
+          const assistantText = extractTextFromBlocks(secondMessage.content);
+
+          const generatedTitle = await requestConversationTitle(userText, assistantText);
+          if (generatedTitle) {
+            set(() => ({ conversationTitle: generatedTitle }));
+            updatedTitle = generatedTitle;
+            stateSnapshot = { ...stateSnapshot, conversationTitle: generatedTitle };
+          }
+        }
+      }
+
+      const recordToSave = {
+        ...(existing ?? { id: conversationId, title: updatedTitle }),
+        title: updatedTitle,
+        messages: stateSnapshot.messages,
+        updatedAt: Date.now(),
+        model: stateSnapshot.model,
+        systemPrompt: stateSnapshot.systemPrompt,
+        enableSearch: stateSnapshot.enableSearch,
+      };
+      await saveConversation(recordToSave);
       set(() => ({
         status: 'ready',
         controller: undefined,
         currentTextId: '',
       }));
-      const existing = await getConversation(get().currentConversationId as string);
-      if (existing) {
-        await saveConversation({
-          ...existing,
-          messages: get().messages,
-          updatedAt: Date.now(),
-          model: get().model,
-          systemPrompt: get().systemPrompt,
-          enableSearch: get().enableSearch,
-        });
-      }
     }
   },
 
@@ -312,6 +394,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       controller: undefined,
       currentConversationId: null,
       currentTextId: '',
+      conversationTitle: null,
     }));
   },
   currentMessage: [],
@@ -332,6 +415,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     set(() => ({
       messages: currentConversation.messages,
       currentConversationId: currentConversation.id,
+      conversationTitle: currentConversation.title ?? 'new chat',
       model: currentConversation.model || 'google/gemini-2.5-flash',
       systemPrompt:
         currentConversation.systemPrompt ||
@@ -371,7 +455,15 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     set(() => ({ systemPrompt: prompt }));
   },
   setCurrentConversationId: (id) => {
-    set(() => ({ currentConversationId: id }));
+    set((state) => ({
+      currentConversationId: id,
+      conversationTitle:
+        id === null
+          ? null
+          : state.messages.length === 0
+            ? 'new chat'
+            : (state.conversationTitle ?? 'new chat'),
+    }));
   },
   isDragging: false,
   setIsDragging: (value: boolean) => {
