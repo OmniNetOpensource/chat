@@ -94,11 +94,9 @@ function toUiMessageParts(contents: MessageBlock[]): UIMessage['parts'] {
 }
 
 function mapIncomingMessages(rawMessages: IncomingMessage[]): {
-  systemPrompt?: string;
   uiMessages: UIMessage[];
 } {
   const uiMessages: UIMessage[] = [];
-  let systemPrompt: string | undefined;
 
   for (const raw of rawMessages) {
     if (!raw) {
@@ -108,28 +106,6 @@ function mapIncomingMessages(rawMessages: IncomingMessage[]): {
     const { role, content, id } = raw;
 
     if (role === 'system') {
-      if (typeof content === 'string') {
-        systemPrompt = content;
-      } else if (Array.isArray(content)) {
-        const aggregated = content
-          .map((part) => {
-            switch (part.type) {
-              case 'text':
-              case 'thinking':
-                return typeof part.text === 'string' ? part.text : '';
-              case 'websearch':
-                return typeof part.content === 'string' ? part.content : '';
-              default:
-                return '';
-            }
-          })
-          .filter(Boolean)
-          .join('\n');
-
-        if (aggregated) {
-          systemPrompt = aggregated;
-        }
-      }
       continue;
     }
 
@@ -155,7 +131,7 @@ function mapIncomingMessages(rawMessages: IncomingMessage[]): {
     } satisfies UIMessage);
   }
 
-  return { systemPrompt, uiMessages };
+  return { uiMessages };
 }
 
 export async function POST(req: NextRequest) {
@@ -192,7 +168,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const { systemPrompt, uiMessages } = mapIncomingMessages(messages);
+  const { uiMessages } = mapIncomingMessages(messages);
 
   if (uiMessages.length === 0) {
     return new Response(JSON.stringify({ error: 'No valid messages to process' }), { status: 400 });
@@ -239,7 +215,6 @@ export async function POST(req: NextRequest) {
   try {
     result = streamText({
       model: google(modelId),
-      system: systemPrompt,
       messages: convertToModelMessages(uiMessages),
       ...(tools ? { tools: tools as any } : {}), // eslint-disable-line @typescript-eslint/no-explicit-any
       ...(providerOptions ? { providerOptions } : {}),

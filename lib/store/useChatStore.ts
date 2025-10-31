@@ -32,8 +32,6 @@ interface UseChatStoreProps {
 
   model: string;
   setModel: (modelName: string) => void;
-  systemPrompt: string;
-  setSystemPrompt: (prompt: string) => void;
 
   isDragging: boolean;
   setIsDragging: (value: boolean) => void;
@@ -140,7 +138,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       messages: get().messages,
       updatedAt: Date.now(),
       model: get().model,
-      systemPrompt: get().systemPrompt,
     });
 
     try {
@@ -151,7 +148,7 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         },
         body: JSON.stringify({
           model: get().model,
-          messages: [{ role: 'system', content: get().systemPrompt }, ...get().messages],
+          messages: get().messages,
           enableSearch: get().enableSearch,
         }),
         signal: controller.signal,
@@ -360,7 +357,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         messages: stateSnapshot.messages,
         updatedAt: Date.now(),
         model: stateSnapshot.model,
-        systemPrompt: stateSnapshot.systemPrompt,
       };
       await saveConversation(recordToSave);
       set(() => ({
@@ -414,7 +410,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
       currentConversationId: currentConversation.id,
       conversationTitle: currentConversation.title,
       model: currentConversation.model,
-      systemPrompt: currentConversation.systemPrompt,
     }));
     return currentConversation.id;
   },
@@ -422,10 +417,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   model: 'google/gemini-2.5-flash',
   setModel: (modelName) => {
     set(() => ({ model: modelName }));
-  },
-  systemPrompt: ``,
-  setSystemPrompt: (prompt) => {
-    set(() => ({ systemPrompt: prompt }));
   },
   setCurrentConversationId: (id) => {
     set((state) => ({

@@ -41,8 +41,8 @@ GOOGLE_GENERATIVE_AI_API_KEY=your_google_api_key
 
 The app uses 4 Zustand stores in `app/lib/store/`:
 
-- **`useChatStore`**: Core chat state (messages, streaming, model, system prompt)
-  - Messages follow `{ role: 'user' | 'assistant' | 'system', content: Content[] }`
+- **`useChatStore`**: Core chat state (messages, streaming, model)
+  - Messages follow `{ role: 'user' | 'assistant', content: Content[] }`
   - Content types: `text`, `thinking` (reasoning trace), `image`, `file`
   - Handles conversation persistence to IndexedDB automatically
   - Default model: `'google/gemini-2.5-flash'`
@@ -55,7 +55,7 @@ The app uses 4 Zustand stores in `app/lib/store/`:
 
 - **Service**: `app/lib/services/indexedDBService.ts`
 - **Storage**: Browser IndexedDB (database: `ChatAppDB`, store: `conversations`)
-- **Schema**: `{ id, title, messages, updatedAt, model, systemPrompt }`
+- **Schema**: `{ id, title, messages, updatedAt, model }`
 - **Auto-save**: Conversations save before streaming starts and after it completes
 
 ### AI Integration
@@ -79,7 +79,7 @@ Both API routes run as Edge functions:
 1. User sends a message via `ChatInput`
 2. For a new conversation: generate UUID, set as `currentConversationId`, navigate to `/c/{id}`
 3. Persist the draft conversation to IndexedDB
-4. POST to `/api/chat` with `{ model, messages }` where messages include system prompt + UI content blocks
+4. POST to `/api/chat` with `{ model, messages }` where messages include UI content blocks
 5. Stream the SSE response, parsing each `data:` line into JSON
 6. Extract `delta.reasoning` (thinking) and `delta.content` (answer) from chunks
 7. Append to the last assistant message's content array, updating thinking durations when the answer begins
@@ -106,7 +106,6 @@ Both API routes run as Edge functions:
 - Streaming state is tracked via `useChatStore.status` (`'ready' | 'streaming'`)
 - AbortController is stored to support canceling in-progress requests
 - Auto-resize textarea logic limits the number of visible lines per device
-- System prompts are saved per conversation and sent as the first message
 
 ## Component Structure
 
@@ -120,7 +119,7 @@ app/
 │   │   ├── ChatInput.tsx      # Message input with file upload
 │   │   ├── MessageList.tsx    # Renders message history
 │   │   └── Conversation.tsx   # Container combining input and list
-│   ├── Header/                # Model selector, system prompt
+│   ├── Header/                # Model selector
 │   ├── Sidebar/               # Conversation history from IndexedDB
 │   ├── Preview/               # Markdown rendering with thinking blocks
 │   └── Theme/                 # next-themes provider

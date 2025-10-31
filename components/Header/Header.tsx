@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { SquarePen } from 'lucide-react';
 import { useResponsive } from '@/lib/hooks/useResponsive';
-import SystemPrompt from './SystemPrompt';
 import SlideLight from '@/components/SlideLight/SlideLight';
 import { useChatStore } from '@/lib/store/useChatStore';
 
@@ -19,7 +18,7 @@ const Header = () => {
                         px-4"
     >
       <div className={`flex-1 flex items-center ${isMobile ? 'justify-center' : 'justify-start'}`}>
-        <SystemPrompt />
+        {/* ... existing code ... */}
       </div>
       <Link
         href="/"

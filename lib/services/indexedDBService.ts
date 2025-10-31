@@ -11,7 +11,6 @@ export interface ConversationRecord {
   title: string;
   messages: MessageType[];
   updatedAt: number;
-  systemPrompt: string;
   model: string;
 }
 
