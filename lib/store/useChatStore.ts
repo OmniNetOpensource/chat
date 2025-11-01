@@ -35,9 +35,6 @@ interface UseChatStoreProps {
 
   isDragging: boolean;
   setIsDragging: (value: boolean) => void;
-
-  enableSearch: boolean;
-  setEnableSearch: (enabled: boolean) => void;
 }
 
 function ensureAssistantMessage(state: UseChatStoreProps): {
@@ -113,7 +110,6 @@ async function requestConversationTitle(
 export const useChatStore = create<UseChatStoreProps>((set, get) => ({
   messages: [],
   conversationTitle: null,
-  enableSearch: false,
   setConversationTitle: (title) => {
     set(() => ({ conversationTitle: title }));
   },
@@ -149,7 +145,6 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
         body: JSON.stringify({
           model: get().model,
           messages: get().messages,
-          enableSearch: get().enableSearch,
         }),
         signal: controller.signal,
       });
@@ -434,8 +429,5 @@ export const useChatStore = create<UseChatStoreProps>((set, get) => ({
     set(() => ({
       isDragging: value,
     }));
-  },
-  setEnableSearch: (enabled) => {
-    set(() => ({ enableSearch: enabled }));
   },
 }));

@@ -11,7 +11,6 @@ import LoadingIcon from '../Icons/LoadingIcon';
 import UpArrowIcon from '../Icons/UpArrowIcon';
 import ImageViewer from '../ImageViewer/ImageViewer';
 import FileViewer from '../FileViewer/FileViewer';
-import SearchIcon from '../Icons/SearchIcon';
 import { Paperclip } from 'lucide-react';
 interface ChatInputProps {
   index: number;
@@ -29,8 +28,6 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
     currentConversationId,
     isDragging,
     setIsDragging,
-    enableSearch,
-    setEnableSearch,
   } = useChatStore();
   const { files, removeFiles, addFilesFromInput, addFilesFromPaste, clearFiles, addFilesFromDrop } =
     useFileUpload({
@@ -204,20 +201,6 @@ const ChatInput = ({ index, editing, onFinishEdit }: ChatInputProps) => {
               onChange={addFilesFromInput}
             />
             <ModelSelect />
-            <button
-              onClick={() => setEnableSearch(!enableSearch)}
-              className={`p-1 rounded-md transition-colors ${
-                enableSearch ? 'bg-primary text-secondary' : 'text-muted hover:bg-hoverbg'
-              }`}
-              title={enableSearch ? 'Google Search 已启用' : 'Google Search 已关闭'}
-              aria-pressed={enableSearch}
-              type="button"
-            >
-              <SearchIcon
-                width={20}
-                height={20}
-              />
-            </button>
           </div>
           <button
             className={`bg-primary ${

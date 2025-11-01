@@ -17,6 +17,7 @@
     "@ai-sdk/openai-compatible": "^1.0.7",
     "@ai-sdk/react": "^2.0.12",
     "@floating-ui/react": "^0.27.15",
+    "@modelcontextprotocol/sdk": "^1.20.2",
     "@tailwindcss/postcss": "^4.1.11",
     "@tanstack/react-virtual": "^3.13.12",
     "ai": "^5.0.12",
@@ -41,6 +42,7 @@
     "remark-gfm": "^4.0.1",
     "remark-math": "^6.0.0",
     "ws": "^8.18.3",
+    "zod": "^4.1.12",
     "zustand": "^5.0.7"
   },
   "devDependencies": {

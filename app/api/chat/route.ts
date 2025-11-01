@@ -1,6 +1,7 @@
 import { google } from '@ai-sdk/google';
-import { convertToModelMessages, streamText, type JSONValue, type UIMessage } from 'ai';
-import { NextRequest } from 'next/server';
+import { convertToModelMessages, streamText, type UIMessage } from 'ai';
+import type { NextRequest } from 'next/server';
+import { z } from 'zod';
 
 import type { MessageBlock } from '@/lib/types';
 
@@ -9,6 +10,25 @@ const SSE_HEADERS: Record<string, string> = {
   'Content-Type': 'text/event-stream',
   'Cache-Control': 'no-cache, no-transform',
   Connection: 'keep-alive',
+};
+
+// Weather tool definition
+const weatherTool = {
+  description: 'Get weather information for a specific city',
+  inputSchema: z.object({
+    city: z.string().describe('The city name to get weather for'),
+  }),
+  execute: async (parameters: { city: string }) => {
+    const { city } = parameters;
+    // Mock weather data - returns fixed response
+    return {
+      city,
+      temperature: '22°C',
+      condition: 'Sunny',
+      humidity: '65%',
+      windSpeed: '10 km/h',
+    };
+  },
 };
 
 type IncomingMessage = {
@@ -144,13 +164,6 @@ export async function POST(req: NextRequest) {
   let payload: {
     messages?: IncomingMessage[];
     model?: string;
-    enableSearch?: boolean;
-    thinking?:
-      | boolean
-      | {
-          includeThoughts?: boolean;
-          budget?: number;
-        };
   };
 
   try {
@@ -160,7 +173,7 @@ export async function POST(req: NextRequest) {
     return new Response(JSON.stringify({ error: 'Invalid JSON body' }), { status: 400 });
   }
 
-  const { messages, model, enableSearch, thinking } = payload ?? {};
+  const { messages, model } = payload ?? {};
 
   if (!Array.isArray(messages) || messages.length === 0) {
     return new Response(JSON.stringify({ error: 'Missing messages in request body' }), {
@@ -180,52 +193,14 @@ export async function POST(req: NextRequest) {
     ? requestedModel.slice('google/'.length)
     : requestedModel;
 
-  const useSearchTools = enableSearch === true;
-  const tools = useSearchTools
-    ? ({
-        google_search: google.tools.googleSearch({}),
-        url_context: google.tools.urlContext({}),
-      } as Record<string, unknown>)
-    : undefined;
-
-  let providerOptions: Record<string, Record<string, JSONValue>> | undefined;
-  if (thinking !== false) {
-    const thinkingOptions = thinking && typeof thinking === 'object' ? thinking : undefined;
-
-    const includeThoughts =
-      (typeof thinkingOptions?.includeThoughts === 'boolean'
-        ? thinkingOptions.includeThoughts
-        : undefined) ?? true;
-    const budget =
-      typeof thinkingOptions?.budget === 'number' && thinkingOptions.budget > 0
-        ? thinkingOptions.budget
-        : undefined;
-    providerOptions = {
-      google: {
-        thinkingConfig: {
-          ...(budget !== undefined ? { thinkingBudget: budget } : {}),
-          includeThoughts,
-        },
-      },
-    } satisfies Record<string, Record<string, JSONValue>>;
-  }
-
-  let result: ReturnType<typeof streamText>;
-
-  try {
-    result = streamText({
-      model: google(modelId),
-      messages: convertToModelMessages(uiMessages),
-      ...(tools ? { tools: tools as any } : {}), // eslint-disable-line @typescript-eslint/no-explicit-any
-      ...(providerOptions ? { providerOptions } : {}),
-      abortSignal: req.signal,
-    });
-  } catch (error) {
-    console.error('Failed to initialize streamText call:', error);
-    return new Response(JSON.stringify({ error: 'Failed to contact Google Generative AI' }), {
-      status: 500,
-    });
-  }
+  const result = streamText({
+    model: google(modelId),
+    messages: convertToModelMessages(uiMessages),
+    abortSignal: req.signal,
+    tools: {
+      getWeather: weatherTool,
+    },
+  });
 
   const stream = new ReadableStream({
     async start(controller) {
